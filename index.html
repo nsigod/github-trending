@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub 热点 · 每日更新</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: oklch(10% 0.01 260);
+      --surface: oklch(13% 0.012 260);
+      --surface-2: oklch(16% 0.014 260);
+      --border: oklch(22% 0.018 260);
+      --border-subtle: oklch(18% 0.015 260);
+      --text: oklch(93% 0.008 260);
+      --text-muted: oklch(62% 0.015 260);
+      --text-dim: oklch(45% 0.012 260);
+      --accent: oklch(72% 0.18 145);
+      --accent-glow: oklch(72% 0.18 145 / 0.15);
+      --gold: oklch(78% 0.16 85);
+      --blue: oklch(68% 0.2 240);
+      --purple: oklch(65% 0.2 290);
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(oklch(100% 0 0 / 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, oklch(100% 0 0 / 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: oklch(10% 0.01 260 / 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-glow);
+      border: 1px solid oklch(72% 0.18 145 / 0.3);
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; fill: var(--accent); }
+
+    .logo-text { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
+    .logo-text span { color: var(--accent); }
+    .header-meta { display: flex; align-items: center; gap: 16px; }
+
+    .update-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .search-wrap { position: relative; display: flex; align-items: center; gap: 6px; }
+
+    .search-wrap svg {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px; fill: none; stroke: var(--text-dim); stroke-width: 2;
+    }
+
+    #search {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      padding: 7px 12px 7px 32px;
+      width: 200px;
+      outline: none;
+      transition: border-color 0.2s, width 0.3s;
+    }
+
+    #search:focus { border-color: oklch(72% 0.18 145 / 0.5); width: 260px; }
+    #search::placeholder { color: var(--text-dim); }
+
+    .search-mode-toggle { display: flex; gap: 2px; }
+
+    .search-mode-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .search-mode-btn:hover { color: var(--text); background: var(--surface-2); }
+
+    .search-mode-btn.active {
+      background: var(--accent-glow);
+      border-color: oklch(72% 0.18 145 / 0.4);
+      color: var(--accent);
+    }
+
+    /* GitHub Search Results Modal */
+    .github-search-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: oklch(0 0 0 / 0.7);
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .github-search-overlay.active { display: flex; align-items: flex-start; justify-content: center; padding-top: 80px; }
+
+    .github-search-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 800px;
+      max-height: 70vh;
+      overflow: hidden;
+      box-shadow: 0 20px 60px oklch(0 0 0 / 0.5);
+    }
+
+    .github-search-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .github-search-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .github-search-title svg { width: 20px; height: 20px; fill: var(--text); }
+
+    .github-search-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .github-search-close:hover { color: var(--text); background: var(--surface-2); }
+
+    .github-search-body { max-height: calc(70vh - 60px); overflow-y: auto; }
+
+    .github-search-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+
+    .github-search-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .github-search-result {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.15s;
+    }
+
+    .github-search-result:hover { background: var(--surface-2); }
+
+    .github-search-result:last-child { border-bottom: none; }
+
+    .github-result-avatar {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .github-result-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .github-result-content { flex: 1; min-width: 0; }
+
+    .github-result-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .github-result-name:hover { text-decoration: underline; }
+
+    .github-result-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .github-result-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .github-result-lang {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .github-result-lang-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+
+    .github-search-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .github-search-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Tab Navigation ── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 28px;
+      width: fit-content;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-size: 13px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover { color: var(--text); background: var(--surface-2); }
+
+    .tab-btn.active {
+      background: var(--surface-2);
+      color: var(--text);
+      box-shadow: 0 1px 3px oklch(0 0 0 / 0.3);
+    }
+
+    .tab-btn .tab-icon { font-size: 14px; }
+
+    /* ── Hero Stats ── */
+    .hero { margin-bottom: 32px; }
+
+    .hero-title {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .hero-title em { font-style: normal; color: var(--accent); }
+    .hero-sub { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+
+    .stats-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 5px 12px 5px 9px;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .stat-pill .num { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Filter Section ── */
+    .filter-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 24px;
+    }
+
+    .filter-mode-switch {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      width: fit-content;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      padding: 5px 13px;
+      font-size: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mode-btn:hover { color: var(--text); }
+    .mode-btn.active { background: var(--surface-2); color: var(--text); }
+
+    .filter-divider { height: 1px; background: var(--border-subtle); margin-bottom: 12px; }
+
+    .filter-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    .filter-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover { background: var(--surface-2); color: var(--text); }
+
+    .filter-btn.active {
+      background: var(--accent-glow);
+      border-color: oklch(72% 0.18 145 / 0.4);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .filter-btn.lang-filter.active {
+      background: oklch(68% 0.2 240 / 0.12);
+      border-color: oklch(68% 0.2 240 / 0.3);
+      color: var(--blue);
+    }
+
+    .lang-dot-sm {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: -1px;
+    }
+
+    .active-filters {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .active-filters:empty { display: none; }
+    .active-filters-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: oklch(72% 0.18 145 / 0.1);
+      border: 1px solid oklch(72% 0.18 145 / 0.2);
+      border-radius: 100px;
+      padding: 2px 9px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .filter-chip.lang {
+      background: oklch(68% 0.2 240 / 0.1);
+      border-color: oklch(68% 0.2 240 / 0.2);
+      color: var(--blue);
+    }
+
+    .filter-chip-remove { cursor: pointer; opacity: 0.6; font-size: 13px; transition: opacity 0.15s; }
+    .filter-chip-remove:hover { opacity: 1; }
+
+    /* ── Tab Content ── */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Section Header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; }
+    .section-title .icon { width: 26px; height: 26px; border-radius: var(--radius-sm); display: grid; place-items: center; font-size: 13px; }
+
+    .section-count {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 2px 8px;
+    }
+
+    .trending-section { margin-bottom: 40px; }
+
+    /* ── Cards Grid ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 10px;
+    }
+
+    /* ── Top Card ── */
+    .top-project {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--surface) 0%, oklch(14% 0.02 200) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .top-project::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .top-project:hover { border-color: oklch(72% 0.18 145 / 0.4); transform: translateY(-2px); }
+
+    .top-rank {
+      position: absolute;
+      top: 14px; right: 18px;
+      font-size: 80px;
+      font-weight: 700;
+      color: oklch(72% 0.18 145 / 0.06);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+      letter-spacing: -0.05em;
+      user-select: none;
+    }
+
+    .top-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--accent-glow);
+      border: 1px solid oklch(72% 0.18 145 / 0.3);
+      border-radius: 100px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .top-project-name { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .top-project-name a { color: inherit; text-decoration: none; }
+    .top-project-name a:hover { color: var(--accent); }
+    .top-project-owner { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+    .top-project-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; max-width: 580px; margin-bottom: 14px; }
+    .top-project-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+      background: linear-gradient(135deg, oklch(72% 0.18 145 / 0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .card:hover { border-color: oklch(40% 0.03 260); transform: translateY(-2px); background: var(--surface-2); }
+    .card:hover::after { opacity: 1; }
+
+    .card-rank {
+      position: absolute;
+      top: 13px; right: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .card-header { display: flex; align-items: flex-start; gap: 9px; }
+
+    .card-avatar {
+      width: 34px; height: 34px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-size: 15px;
+      font-weight: 600;
+      overflow: hidden;
+      color: var(--text-muted);
+    }
+
+    .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-title-group { flex: 1; min-width: 0; }
+    .card-name { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-owner { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+
+    .card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+    .card-stats { display: flex; align-items: center; gap: 10px; }
+
+    .stat { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+    .stat svg { width: 11px; height: 11px; flex-shrink: 0; }
+    .stat.star svg { fill: var(--gold); }
+    .stat.fork svg { fill: none; stroke: var(--text-dim); stroke-width: 2; }
+    .stat.up svg { fill: var(--accent); }
+
+    .today-badge {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: oklch(72% 0.18 145 / 0.1);
+      border: 1px solid oklch(72% 0.18 145 / 0.2);
+      border-radius: 100px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+
+    .today-badge::before { content: '↑'; font-size: 10px; }
+
+    .week-badge {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: oklch(78% 0.16 85 / 0.12);
+      border: 1px solid oklch(78% 0.16 85 / 0.2);
+      border-radius: 100px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+
+    .week-badge::before { content: '★'; font-size: 9px; }
+
+    .lang-tag { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted); }
+    .lang-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    .domain-tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 100px;
+      padding: 2px 7px;
+      align-self: flex-start;
+    }
+
+    .topics { display: flex; gap: 4px; flex-wrap: wrap; }
+    .topic { font-size: 10px; border: 1px solid var(--border); border-radius: 100px; padding: 1px 6px; color: var(--text-dim); background: var(--surface-2); white-space: nowrap; }
+
+    /* ── Rank medal ── */
+    .rank-medal {
+      position: absolute;
+      top: 10px; right: 10px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb300); color: #000; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #000; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #a0522d); color: #fff; }
+    .rank-default { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border); }
+
+    /* ── Empty ── */
+    .empty { grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--text-dim); }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .empty-text { font-size: 13px; }
+
+    /* ── Footer ── */
+    footer { border-top: 1px solid var(--border-subtle); text-align: center; padding: 24px; font-size: 12px; color: var(--text-dim); position: relative; z-index: 1; }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card, .top-project { animation: fadeUp 0.35s ease-out both; }
+    .cards-grid .card:nth-child(1) { animation-delay: 0.0s; }
+    .cards-grid .card:nth-child(2) { animation-delay: 0.05s; }
+    .cards-grid .card:nth-child(3) { animation-delay: 0.10s; }
+    .cards-grid .card:nth-child(4) { animation-delay: 0.15s; }
+    .cards-grid .card:nth-child(5) { animation-delay: 0.20s; }
+    .cards-grid .card:nth-child(6) { animation-delay: 0.25s; }
+    .cards-grid .card:nth-child(7) { animation-delay: 0.30s; }
+    .cards-grid .card:nth-child(8) { animation-delay: 0.35s; }
+    .cards-grid .card:nth-child(9) { animation-delay: 0.40s; }
+    .cards-grid .card:nth-child(10) { animation-delay: 0.45s; }
+    .cards-grid .card:nth-child(11) { animation-delay: 0.50s; }
+    .cards-grid .card:nth-child(12) { animation-delay: 0.55s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .header-inner { padding: 0 16px; }
+      main { padding: 20px 16px 60px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      #search { width: 160px; }
+      #search:focus { width: 180px; }
+      .tab-btn { padding: 7px 12px; font-size: 12px; }
+      .tab-nav { overflow-x: auto; width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      .header-meta .update-badge { display: none; }
+      .search-wrap { display: none; }
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      </div>
+      <span class="logo-text">GitHub <span>热点</span></span>
+    </a>
+    <div class="header-meta">
+      <div class="update-badge">
+        <div class="pulse"></div>
+        <span id="updateTime">加载中...</span>
+      </div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search" placeholder="搜索项目..." autocomplete="off">
+        <div class="search-mode-toggle">
+          <button class="search-mode-btn active" id="modeLocal" onclick="setSearchMode('local')" title="本站搜索">🏠</button>
+          <button class="search-mode-btn" id="modeGitHub" onclick="setSearchMode('github')" title="GitHub搜索">🐙</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- GitHub Search Results Modal -->
+<div class="github-search-overlay" id="githubSearchOverlay" onclick="closeGitHubSearch(event)">
+  <div class="github-search-modal" onclick="event.stopPropagation()">
+    <div class="github-search-header">
+      <div class="github-search-title">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span>GitHub 搜索结果</span>
+        <span id="githubSearchQuery" style="color:var(--text-muted);font-weight:400"></span>
+      </div>
+      <button class="github-search-close" onclick="closeGitHubSearch()">&times;</button>
+    </div>
+    <div class="github-search-body" id="githubSearchBody">
+      <!-- Results will be inserted here -->
+    </div>
+    <div class="github-search-footer">
+      <span>数据来源：GitHub API</span>
+      <span id="githubSearchStats"></span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('today')">
+      <span class="tab-icon">🔥</span> 今日热点
+    </button>
+    <button class="tab-btn" onclick="switchTab('weekly')">
+      <span class="tab-icon">📅</span> 本周热门
+    </button>
+    <button class="tab-btn" onclick="switchTab('alltime')">
+      <span class="tab-icon">👑</span> 总排行榜
+    </button>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1 class="hero-title" id="heroTitle">今日 <em>GitHub</em> 热点</h1>
+    <p class="hero-sub" id="heroSub">实时追踪全球开发者最关注的开源项目 · 双维度分类筛选</p>
+    <div class="stats-row" id="statsRow"></div>
+  </div>
+
+  <!-- ─── TODAY TAB ─── -->
+  <div class="tab-content active" id="tab-today">
+
+    <!-- Filter -->
+    <div class="filter-section">
+      <div class="filter-mode-switch">
+        <button class="mode-btn active" onclick="setFilterMode('lang')">
+          <span>💻</span> 按语言
+        </button>
+        <button class="mode-btn" onclick="setFilterMode('domain')">
+          <span>🏷️</span> 按用途
+        </button>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-row" id="filterRow"></div>
+      <div class="active-filters" id="activeFilters"></div>
+    </div>
+
+    <!-- Top -->
+    <div class="trending-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="icon" style="background:oklch(78% 0.16 85 / 0.12)">🔥</div>
+          今日最热
+        </div>
+        <span class="section-count" id="todayTopCount">-</span>
+      </div>
+      <div id="todayTopCard"></div>
+    </div>
+
+    <!-- Grid -->
+    <div class="trending-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="icon" style="background:oklch(72% 0.18 145 / 0.12)">⚡</div>
+          热点项目
+        </div>
+        <span class="section-count" id="todayGridCount">-</span>
+      </div>
+      <div class="cards-grid" id="todayGrid"></div>
+    </div>
+  </div>
+
+  <!-- ─── WEEKLY TAB ─── -->
+  <div class="tab-content" id="tab-weekly">
+    <!-- Filter -->
+    <div class="filter-section">
+      <div class="filter-mode-switch">
+        <button class="mode-btn active" onclick="setFilterModeWeekly('lang')">
+          <span>💻</span> 按语言
+        </button>
+        <button class="mode-btn" onclick="setFilterModeWeekly('domain')">
+          <span>🏷️</span> 按用途
+        </button>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-row" id="filterRowWeekly"></div>
+      <div class="active-filters" id="activeFiltersWeekly"></div>
+    </div>
+
+    <div class="trending-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="icon" style="background:oklch(65% 0.2 290 / 0.12)">📅</div>
+          本周热门 TOP
+        </div>
+        <span class="section-count" id="weeklyCount">-</span>
+      </div>
+      <div class="cards-grid" id="weeklyGrid"></div>
+    </div>
+  </div>
+
+  <!-- ─── ALL TIME TAB ─── -->
+  <div class="tab-content" id="tab-alltime">
+    <!-- Filter -->
+    <div class="filter-section">
+      <div class="filter-mode-switch">
+        <button class="mode-btn active" onclick="setFilterModeAlltime('lang')">
+          <span>💻</span> 按语言
+        </button>
+        <button class="mode-btn" onclick="setFilterModeAlltime('domain')">
+          <span>🏷️</span> 按用途
+        </button>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-row" id="filterRowAlltime"></div>
+      <div class="active-filters" id="activeFiltersAlltime"></div>
+    </div>
+
+    <!-- 全部项目列表 -->
+    <div class="trending-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="icon" style="background:oklch(78% 0.16 85 / 0.15)">👑</div>
+          GitHub 总排行榜
+        </div>
+        <span class="section-count" id="alltimeCount">-</span>
+      </div>
+      <div class="cards-grid" id="alltimeGrid"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  数据来源：<a href="https://github.com/trending" target="_blank" rel="noopener">GitHub Trending</a> &amp; <a href="https://api.github.com" target="_blank" rel="noopener">GitHub API</a>
+  · 每日自动更新
+</footer>
+
+<script>
+// ─── Language Colors ───
+const LANG_COLORS = {
+  Python: '#3572A5', TypeScript: '#3178c6', Shell: '#89e051',
+  Rust: '#dea584', Go: '#00ADD8', JavaScript: '#f1e05a',
+  Crystal: '#000100', 'C#': '#178600', C: '#555555',
+  HTML: '#e34c26', CSS: '#563d7c', Ruby: '#701516',
+  default: '#8B8B8B'
+};
+
+function getLangColor(lang) { return LANG_COLORS[lang] || LANG_COLORS.default; }
+
+// ─── Domain Definitions ───
+const DOMAINS = {
+  '🤖 AI智能': { color: '#a78bfa', keywords: ['ai','llm','deepseek','voice','agent','codex','gpt','claude','coding','image','video','generative','pixelle'] },
+  '💰 金融投资': { color: '#34d399', keywords: ['stock','finance','trading','crypto','invest','market','fincept'] },
+  '🔒 隐私安全': { color: '#f87171', keywords: ['privacy','security','osint','track','block','encrypt','hide'] },
+  '💻 开发工具': { color: '#60a5fa', keywords: ['terminal','ide','devtools','code','develop','tool','productivity','knowledge','graph','mcp','context'] },
+  '🎬 媒体娱乐': { color: '#f472b6', keywords: ['video','music','media','youtube','stream','player','short'] },
+  '⚙️ 系统工具': { color: '#fb923c', keywords: ['windows','system','utility','tool','powertoy','hacking'] },
+  '📚 学习成长': { color: '#fbbf24', keywords: ['book','learn','tutorial','education','course','curriculum','study','interview','roadmap','freecodecamp','build-your-own'] },
+  '🧪 科研': { color: '#38bdf8', keywords: ['research','paper','math','science','algorithm'] }
+};
+
+function assignDomain(project) {
+  const text = [project.name, project.desc || '', ...(project.topics || [])].join(' ').toLowerCase();
+  for (const [domain, info] of Object.entries(DOMAINS)) {
+    if (info.keywords.some(kw => text.includes(kw))) return domain;
+  }
+  return '💻 开发工具';
+}
+
+// ─── TODAY DATA ───
+const TODAY_DATA = [
+  // Rust 项目
+  { rank:1, name:'warp', owner:'warpdotdev', fullName:'warpdotdev/warp', desc:'Warp 是一个基于终端的智能开发环境。', lang:'Rust', stars:43828, forks:2616, starsToday:12822, url:'https://github.com/warpdotdev/warp', topics:['terminal','rust','ai','developer-tools'] },
+  { rank:2, name:'cc-switch', owner:'farion1231', fullName:'farion1231/cc-switch', desc:'跨平台桌面 AI 助手工具，支持 Claude Code、Codex、OpenClaw 等。', lang:'Rust', stars:55579, forks:3618, starsToday:1252, url:'https://github.com/farion1231/cc-switch', topics:['ai','assistant','claude-code','codex'] },
+  { rank:3, name:'openai-codex', owner:'openai', fullName:'openai/codex', desc:'轻量级编程 Agent，在终端中运行。', lang:'Rust', stars:78910, forks:11286, starsToday:331, url:'https://github.com/openai/codex', topics:['ai','codex','coding','agent'] },
+  { rank:4, name:'memvid', owner:'memvid', fullName:'memvid/memvid', desc:'AI Agent 的记忆层，替代复杂的 RAG 流程。', lang:'Rust', stars:15306, forks:1313, starsToday:43, url:'https://github.com/memvid/memvid', topics:['ai','rag','memory','agent'] },
+  { rank:5, name:'jcode', owner:'1jehuang', fullName:'1jehuang/jcode', desc:'编程 Agent 框架，轻量级 Rust 实现的 AI 编程环境。', lang:'Rust', stars:1354, forks:128, starsToday:411, url:'https://github.com/1jehuang/jcode', topics:['rust','ai','coding-agent','cli'] },
+  { rank:6, name:'rustfs', owner:'rustfs', fullName:'rustfs/rustfs', desc:'比 MinIO 快 2.3 倍的高性能对象存储系统。', lang:'Rust', stars:26821, forks:1149, starsToday:124, url:'https://github.com/rustfs/rustfs', topics:['storage','s3','minio','performance'] },
+  { rank:7, name:'Handy', owner:'cjpais', fullName:'cjpais/Handy', desc:'完全离线的开源语音转文字应用。', lang:'Rust', stars:20807, forks:1723, starsToday:93, url:'https://github.com/cjpais/Handy', topics:['audio','speech-to-text','offline','privacy'] },
+  { rank:8, name:'agent-of-empires', owner:'njbrake', fullName:'njbrake/agent-of-empires', desc:'管理多个 Claude Code、OpenCode 代理的 TUI/Web 工具。', lang:'Rust', stars:1789, forks:145, starsToday:36, url:'https://github.com/njbrake/agent-of-empires', topics:['claude','codex','agent','tui'] },
+  { rank:9, name:'iii', owner:'iii-hq', fullName:'iii-hq/iii', desc:'用单一引擎和三个原语统一后端栈：Function、Trigger、Worker。', lang:'Rust', stars:15428, forks:1032, starsToday:53, url:'https://github.com/iii-hq/iii', topics:['backend','serverless','framework'] },
+  { rank:10, name:'tantivy', owner:'quickwit-oss', fullName:'quickwit-oss/tantivy', desc:'受 Apache Lucene 启发的 Rust 全文搜索引擎库。', lang:'Rust', stars:15102, forks:903, starsToday:11, url:'https://github.com/quickwit-oss/tantivy', topics:['search','lucene','full-text','rust'] },
+  { rank:11, name:'tokio', owner:'tokio-rs', fullName:'tokio-rs/tokio', desc:'Rust 异步应用运行时，提供 I/O、网络、调度、定时器等。', lang:'Rust', stars:31829, forks:3023, starsToday:38, url:'https://github.com/tokio-rs/tokio', topics:['async','runtime','rust','networking'] },
+  { rank:12, name:'oxc', owner:'oxc-project', fullName:'oxc-project/oxc', desc:'高性能 JavaScript 工具集合。', lang:'Rust', stars:20921, forks:1007, starsToday:21, url:'https://github.com/oxc-project/oxc', topics:['javascript','parser','linter','tooling'] },
+
+  // Shell 项目
+  { rank:13, name:'skills', owner:'mattpocock', fullName:'mattpocock/skills', desc:'为真正的工程师准备的技能库，来自 .claude 目录的实战经验。', lang:'Shell', stars:44577, forks:3577, starsToday:7280, url:'https://github.com/mattpocock/skills', topics:['ai','claude','productivity','engineering'] },
+  { rank:14, name:'superpowers', owner:'obra', fullName:'obra/superpowers', desc:'一个真正有效的智能技能框架与软件开发方法论。', lang:'Shell', stars:173104, forks:15263, starsToday:1653, url:'https://github.com/obra/superpowers', topics:['ai','agent','framework','productivity'] },
+  { rank:15, name:'claude-code', owner:'anthropics', fullName:'anthropics/claude-code', desc:'终端中的 AI 编程助手，理解代码库，执行日常任务。', lang:'Shell', stars:119228, forks:19790, starsToday:396, url:'https://github.com/anthropics/claude-code', topics:['ai','claude','coding','agent'] },
+  { rank:16, name:'ohmyzsh', owner:'ohmyzsh', fullName:'ohmyzsh/ohmyzsh', desc:'社区驱动的 zsh 配置管理框架，包含 300+ 插件和 140+ 主题。', lang:'Shell', stars:186601, forks:26359, starsToday:36, url:'https://github.com/ohmyzsh/ohmyzsh', topics:['zsh','shell','terminal','plugins'] },
+  { rank:17, name:'pi-hole', owner:'pi-hole', fullName:'pi-hole/pi-hole', desc:'互联网广告的黑色洞。', lang:'Shell', stars:57936, forks:3106, starsToday:150, url:'https://github.com/pi-hole/pi-hole', topics:['privacy','ads','dns','blocker'] },
+  { rank:18, name:'nvm', owner:'nvm-sh', fullName:'nvm-sh/nvm', desc:'Node 版本管理器，POSIX 兼容的 bash 脚本。', lang:'Shell', stars:93148, forks:10136, starsToday:17, url:'https://github.com/nvm-sh/nvm', topics:['node','nvm','version-manager'] },
+
+  // Python 项目
+  { rank:19, name:'VibeVoice', owner:'microsoft', fullName:'microsoft/VibeVoice', desc:'开源前沿语音 AI，支持实时语音合成与识别。', lang:'Python', stars:45686, forks:5049, starsToday:1868, url:'https://github.com/microsoft/VibeVoice', topics:['ai','voice','speech','open-source'] },
+  { rank:20, name:'GhostTrack', owner:'HunxByts', fullName:'HunxByts/GhostTrack', desc:'利用开源情报追踪位置或手机号码的实用工具。', lang:'Python', stars:11572, forks:1584, starsToday:1036, url:'https://github.com/HunxByts/GhostTrack', topics:['osint','tracking','security'] },
+  { rank:21, name:'awesome-codex-skills', owner:'ComposioHQ', fullName:'ComposioHQ/awesome-codex-skills', desc:'精选的实用 Codex 技能列表，用于自动化工作流程。', lang:'Python', stars:4781, forks:297, starsToday:1180, url:'https://github.com/ComposioHQ/awesome-codex-skills', topics:['codex','automation','openai'] },
+  { rank:22, name:'TradingAgents', owner:'TauricResearch', fullName:'TauricResearch/TradingAgents', desc:'多智能体 LLM 金融交易框架。', lang:'Python', stars:55795, forks:10369, starsToday:896, url:'https://github.com/TauricResearch/TradingAgents', topics:['ai','trading','finance','agent'] },
+  { rank:23, name:'DeepSeek-V3', owner:'deepseek-ai', fullName:'deepseek-ai/DeepSeek-V3', desc:'DeepSeek AI 大语言模型。', lang:'Python', stars:103299, forks:16718, starsToday:542, url:'https://github.com/deepseek-ai/DeepSeek-V3', topics:['ai','llm','deepseek'] },
+  { rank:24, name:'daily_stock_analysis', owner:'ZhuLinsen', fullName:'ZhuLinsen/daily_stock_analysis', desc:'基于 LLM 的 A/H/美股智能分析器。', lang:'Python', stars:32745, forks:32917, starsToday:358, url:'https://github.com/ZhuLinsen/daily_stock_analysis', topics:['llm','stock','finance'] },
+  { rank:25, name:'free-programming-books', owner:'EbookFoundation', fullName:'EbookFoundation/free-programming-books', desc:'免费编程书籍，涵盖 40+ 种语言。', lang:'Python', stars:387179, forks:66184, starsToday:609, url:'https://github.com/EbookFoundation/free-programming-books', topics:['books','education','programming'] },
+  { rank:26, name:'system-design-primer', owner:'donnemartin', fullName:'donnemartin/system-design-primer', desc:'学习如何设计大型系统，为系统设计面试做准备。', lang:'Python', stars:346251, forks:55868, starsToday:234, url:'https://github.com/donnemartin/system-design-primer', topics:['system-design','interview','architecture'] },
+  { rank:27, name:'maigret', owner:'soxoj', fullName:'soxoj/maigret', desc:'通过用户名从 3000+ 网站收集个人档案。', lang:'Python', stars:20244, forks:1420, starsToday:31, url:'https://github.com/soxoj/maigret', topics:['osint','username','privacy'] },
+  { rank:28, name:'XianyuAutoAgent', owner:'shaxiu', fullName:'shaxiu/XianyuAutoAgent', desc:'智能闲鱼客服机器人系统，AI 7×24 小时自动化值守。', lang:'Python', stars:7313, forks:1317, starsToday:289, url:'https://github.com/shaxiu/XianyuAutoAgent', topics:['ai','chatbot','commerce'] },
+  { rank:29, name:'ppt-master', owner:'hugohe3', fullName:'hugohe3/ppt-master', desc:'AI 从任何文档生成可编辑的 PPTX 文件。', lang:'Python', stars:9538, forks:1028, starsToday:456, url:'https://github.com/hugohe3/ppt-master', topics:['ai','ppt','presentation'] },
+  { rank:30, name:'heretic', owner:'p-e-w', fullName:'p-e-w/heretic', desc:'语言模型的自动审查移除工具。', lang:'Python', stars:20215, forks:2066, starsToday:89, url:'https://github.com/p-e-w/heretic', topics:['ai','llm','censorship'] },
+  { rank:31, name:'neutts', owner:'neuphonic', fullName:'neuphonic/neutts', desc:'Neuphonic 的设备端 TTS 模型。', lang:'Python', stars:5737, forks:620, starsToday:234, url:'https://github.com/neuphonic/neutts', topics:['tts','audio','ai'] },
+  { rank:32, name:'modded-nanogpt', owner:'KellerJordan', fullName:'KellerJordan/modded-nanogpt', desc:'90 秒内实现 NanoGPT。', lang:'Python', stars:5173, forks:729, starsToday:178, url:'https://github.com/KellerJordan/modded-nanogpt', topics:['gpt','ai','nano','training'] },
+
+  // Go 项目
+  { rank:33, name:'ds2api', owner:'CJackHwang', fullName:'CJackHwang/ds2api', desc:'Deepseek 转 API：轻量级高性能中间件。', lang:'Go', stars:2715, forks:724, starsToday:461, url:'https://github.com/CJackHwang/ds2api', topics:['deepseek','api','middleware'] },
+  { rank:34, name:'minio', owner:'minio', fullName:'minio/minio', desc:'高性能 S3 兼容对象存储。', lang:'Go', stars:60828, forks:7444, starsToday:123, url:'https://github.com/minio/minio', topics:['storage','s3','cloud'] },
+  { rank:35, name:'seaweedfs', owner:'seaweedfs', fullName:'seaweedfs/seaweedfs', desc:'分布式存储系统，支持对象存储、文件系统和 Iceberg 表。', lang:'Go', stars:31950, forks:2801, starsToday:89, url:'https://github.com/seaweedfs/seaweedfs', topics:['storage','distributed','s3'] },
+  { rank:36, name:'beads', owner:'gastownhall', fullName:'gastownhall/beads', desc:'编程 Agent 的记忆升级工具。', lang:'Go', stars:22649, forks:1485, starsToday:234, url:'https://github.com/gastownhall/beads', topics:['ai','memory','agent'] },
+  { rank:37, name:'new-api', owner:'QuantumNous', fullName:'QuantumNous/new-api', desc:'统一的 AI 模型中心，支持跨格式转换。', lang:'Go', stars:29795, forks:6342, starsToday:567, url:'https://github.com/QuantumNous/new-api', topics:['ai','api','llm'] },
+  { rank:38, name:'trivy', owner:'aquasecurity', fullName:'aquasecurity/trivy', desc:'发现容器、Kubernetes、代码仓库中的漏洞和配置错误。', lang:'Go', stars:34771, forks:332, starsToday:45, url:'https://github.com/aquasecurity/trivy', topics:['security','vulnerability','scanner'] },
+  { rank:39, name:'eino', owner:'cloudwego', fullName:'cloudwego/eino', desc:'Go 语言的终极 LLM/AI 应用开发框架。', lang:'Go', stars:10955, forks:884, starsToday:189, url:'https://github.com/cloudwego/eino', topics:['ai','llm','framework','golang'] },
+  { rank:40, name:'ladder', owner:'everywall', fullName:'everywall/ladder', desc:'12ft.io 和 1ft.io 的自托管替代品。', lang:'Go', stars:7279, forks:378, starsToday:67, url:'https://github.com/everywall/ladder', topics:['proxy','privacy','web'] },
+  { rank:41, name:'VictoriaMetrics', owner:'VictoriaMetrics', fullName:'VictoriaMetrics/VictoriaMetrics', desc:'快速、经济的监控解决方案和时序数据库。', lang:'Go', stars:16908, forks:1628, starsToday:34, url:'https://github.com/VictoriaMetrics/VictoriaMetrics', topics:['monitoring','database','metrics'] },
+  { rank:42, name:'dagger', owner:'dagger', fullName:'dagger/dagger', desc:'构建、测试和发布任何代码库的自动化引擎。', lang:'Go', stars:15743, forks:862, starsToday:28, url:'https://github.com/dagger/dagger', topics:['ci','automation','devops'] },
+
+  // TypeScript 项目
+  { rank:43, name:'GitNexus', owner:'abhigyanpatwari', fullName:'abhigyanpatwari/GitNexus', desc:'零服务器代码智能引擎，在浏览器中创建知识图谱。', lang:'TypeScript', stars:33327, forks:3782, starsToday:777, url:'https://github.com/abhigyanpatwari/GitNexus', topics:['knowledge-graph','browser','typescript'] },
+  { rank:44, name:'craft-agents-oss', owner:'lukilabs', fullName:'lukilabs/craft-agents-oss', desc:'开源智能框架，用于构建复杂的多步骤 AI 工作流。', lang:'TypeScript', stars:5332, forks:722, starsToday:432, url:'https://github.com/lukilabs/craft-agents-oss', topics:['agents','ai','workflows'] },
+  { rank:45, name:'upstash-context7', owner:'upstash', fullName:'upstash/context7', desc:'为 LLM 和 AI 代码编辑器提供最新代码文档。', lang:'TypeScript', stars:54122, forks:2563, starsToday:890, url:'https://github.com/upstash/context7', topics:['ai','llm','documentation'] },
+  { rank:46, name:'portless', owner:'vercel-labs', fullName:'vercel-labs/portless', desc:'用稳定的命名本地 URL 替代端口号。', lang:'TypeScript', stars:8472, forks:251, starsToday:345, url:'https://github.com/vercel-labs/portless', topics:['developer-tools','localhost','networking'] },
+  { rank:47, name:'playwright-mcp', owner:'microsoft', fullName:'microsoft/playwright-mcp', desc:'Playwright MCP 服务器。', lang:'TypeScript', stars:31796, forks:2596, starsToday:234, url:'https://github.com/microsoft/playwright-mcp', topics:['playwright','mcp','testing'] },
+  { rank:48, name:'OpenSpec', owner:'Fission-AI', fullName:'Fission-AI/OpenSpec', desc:'AI 编程助手的规格驱动开发。', lang:'TypeScript', stars:44035, forks:3054, starsToday:456, url:'https://github.com/Fission-AI/OpenSpec', topics:['ai','sdd','spec'] },
+  { rank:49, name:'drawnix', owner:'plait-board', fullName:'plait-board/drawnix', desc:'开源白板工具，包含思维导图、流程图、自由画等。', lang:'TypeScript', stars:13731, forks:1163, starsToday:123, url:'https://github.com/plait-board/drawnix', topics:['whiteboard','canvas','design'] },
+  { rank:50, name:'umbrel', owner:'getumbrel', fullName:'getumbrel/umbrel', desc:'优雅的家庭服务器操作系统。', lang:'TypeScript', stars:11108, forks:737, starsToday:89, url:'https://github.com/getumbrel/umbrel', topics:['self-hosted','server','home'] },
+
+  // JavaScript 项目
+  { rank:51, name:'uBlock', owner:'gorhill', fullName:'gorhill/uBlock', desc:'Chromium 和 Firefox 的高效广告拦截器。', lang:'JavaScript', stars:64036, forks:4074, starsToday:315, url:'https://github.com/gorhill/uBlock', topics:['blocker','privacy','browser'] },
+  { rank:52, name:'Open-Generative-AI', owner:'Anil-matcha', fullName:'Anil-matcha/Open-Generative-AI', desc:'无审查的开源 AI 图像与视频生成工作室。', lang:'JavaScript', stars:10155, forks:980, starsToday:234, url:'https://github.com/Anil-matcha/Open-Generative-AI', topics:['ai','generative','image','video'] },
+
+  // C# 项目
+  { rank:53, name:'PowerToys', owner:'microsoft', fullName:'microsoft/PowerToys', desc:'微软 PowerToys：提升 Windows 生产力的实用工具集。', lang:'C#', stars:132389, forks:7913, starsToday:79, url:'https://github.com/microsoft/PowerToys', topics:['windows','productivity','utilities'] },
+  { rank:54, name:'yudao-cloud', owner:'YunaiV', fullName:'YunaiV/yudao-cloud', desc:'基于 Spring Cloud Alibaba 的微服务架构。', lang:'Java', stars:18872, forks:4723, starsToday:16, url:'https://github.com/YunaiV/yudao-cloud', topics:['java','spring-cloud','microservices'] },
+
+  // Java 项目
+  { rank:55, name:'spring-boot', owner:'spring-projects', fullName:'spring-projects/spring-boot', desc:'Spring 驱动的生产级应用框架。', lang:'Java', stars:80529, forks:41897, starsToday:17, url:'https://github.com/spring-projects/spring-boot', topics:['java','spring','framework'] },
+  { rank:56, name:'agentscope-java', owner:'agentscope-ai', fullName:'agentscope-ai/agentscope-java', desc:'面向 Agent 的 LLM 应用编程框架。', lang:'Java', stars:2796, forks:591, starsToday:25, url:'https://github.com/agentscope-ai/agentscope-java', topics:['ai','agent','java'] },
+  { rank:57, name:'JeecgBoot', owner:'jeecgboot', fullName:'jeecgboot/JeecgBoot', desc:'AI 低代码平台，支持低代码 + 零代码双模式。', lang:'Java', stars:46027, forks:15957, starsToday:21, url:'https://github.com/jeecgboot/JeecgBoot', topics:['low-code','ai','java'] },
+  { rank:58, name:'dataease', owner:'dataease', fullName:'dataease/dataease', desc:'人人可用的开源 BI 工具，数据可视化神器。', lang:'Java', stars:23868, forks:4088, starsToday:10, url:'https://github.com/dataease/dataease', topics:['bi','visualization','data'] },
+  { rank:59, name:'kestra', owner:'kestra-io', fullName:'kestra-io/kestra', desc:'事件驱动的编排与调度平台。', lang:'Java', stars:26775, forks:2563, starsToday:12, url:'https://github.com/kestra-io/kestra', topics:['orchestration','workflow','scheduling'] },
+  { rank:60, name:'xxl-job', owner:'xuxueli', fullName:'xuxueli/xxl-job', desc:'分布式任务调度框架。', lang:'Java', stars:30111, forks:11465, starsToday:4, url:'https://github.com/xuxueli/xxl-job', topics:['scheduler','distributed','job'] },
+  { rank:61, name:'netty', owner:'netty', fullName:'netty/netty', desc:'异步网络应用框架。', lang:'Java', stars:34936, forks:16248, starsToday:3, url:'https://github.com/netty/netty', topics:['networking','async','nio'] },
+  { rank:62, name:'openapi-generator', owner:'OpenAPITools', fullName:'OpenAPITools/openapi-generator', desc:'API 客户端库生成、服务器存根、文档。', lang:'Java', stars:26188, forks:7498, starsToday:4, url:'https://github.com/OpenAPITools/openapi-generator', topics:['api','openapi','generator'] },
+
+  // Crystal 项目
+  { rank:63, name:'invidious', owner:'iv-org', fullName:'iv-org/invidious', desc:'YouTube 的替代前端，注重隐私保护。', lang:'Crystal', stars:19420, forks:2136, starsToday:243, url:'https://github.com/iv-org/invidious', topics:['youtube','privacy','alternative'] },
+
+  // C 项目
+  { rank:64, name:'netdata', owner:'netdata', fullName:'netdata/netdata', desc:'快速部署全栈可观测性的平台。', lang:'C', stars:78649, forks:6422, starsToday:89, url:'https://github.com/netdata/netdata', topics:['monitoring','observability','metrics'] },
+  { rank:65, name:'redis', owner:'redis', fullName:'redis/redis', desc:'最快的内存数据结构存储。', lang:'C', stars:74063, forks:24595, starsToday:67, url:'https://github.com/redis/redis', topics:['database','redis','cache'] },
+  { rank:66, name:'netdata', owner:'netdata', fullName:'netdata/netdata', desc:'快速部署全栈可观测性的平台。', lang:'C', stars:78649, forks:6422, starsToday:89, url:'https://github.com/netdata/netdata', topics:['monitoring','observability','metrics'] },
+
+  // C++ 项目
+  { rank:67, name:'tesseract', owner:'tesseract-ocr', fullName:'tesseract-ocr/tesseract', desc:'开源 OCR 引擎。', lang:'C++', stars:73810, forks:10612, starsToday:27, url:'https://github.com/tesseract-ocr/tesseract', topics:['ocr','text-recognition','ai'] },
+  { rank:68, name:'duckdb', owner:'duckdb', fullName:'duckdb/duckdb', desc:'分析型进程内 SQL 数据库管理系统。', lang:'C++', stars:37830, forks:3190, starsToday:31, url:'https://github.com/duckdb/duckdb', topics:['database','sql','analytics'] },
+  { rank:69, name:'valkey', owner:'valkey-io', fullName:'valkey-io/valkey', desc:'灵活的分布式键值数据库，专为缓存等实时工作负载优化。', lang:'C', stars:25615, forks:1113, starsToday:45, url:'https://github.com/valkey-io/valkey', topics:['database','cache','redis'] },
+  { rank:70, name:'grpc', owner:'grpc', fullName:'grpc/grpc', desc:'C++ 基于的高性能 RPC 框架。', lang:'C++', stars:44691, forks:11144, starsToday:13, url:'https://github.com/grpc/grpc', topics:['rpc','grpc','framework'] },
+  { rank:71, name:'shadPS4', owner:'shadps4-emu', fullName:'shadps4-emu/shadPS4', desc:'Windows、Linux、macOS 和 FreeBSD 的 PlayStation 4 模拟器。', lang:'C++', stars:30952, forks:2110, starsToday:17, url:'https://github.com/shadps4-emu/shadPS4', topics:['emulator','ps4','gaming'] },
+  { rank:72, name:'dragonfly', owner:'dragonflydb', fullName:'dragonflydb/dragonfly', desc:'Redis 和 Memcached 的现代替代品。', lang:'C++', stars:30419, forks:1171, starsToday:5, url:'https://github.com/dragonflydb/dragonfly', topics:['database','cache','redis'] },
+  { rank:73, name:'zephyr', owner:'zephyrproject-rtos', fullName:'zephyrproject-rtos/zephyr', desc:'新一代可扩展、优化、安全的 RTOS。', lang:'C', stars:15112, forks:9056, starsToday:23, url:'https://github.com/zephyrproject-rtos/zephyr', topics:['rtos','embedded','iot'] },
+  { rank:74, name:'systeminformer', owner:'winsiderss', fullName:'winsiderss/systeminformer', desc:'监控系统资源、调试软件和检测恶意软件的强大工具。', lang:'C', stars:14295, forks:1661, starsToday:34, url:'https://github.com/winsiderss/systeminformer', topics:['windows','monitoring','debugging'] },
+  { rank:75, name:'OrcaSlicer', owner:'OrcaSlicer', fullName:'OrcaSlicer/OrcaSlicer', desc:'3D 打印机的 G-code 生成器。', lang:'C++', stars:13534, forks:2122, starsToday:16, url:'https://github.com/OrcaSlicer/OrcaSlicer', topics:['3d-printing','slicer','gcode'] },
+  { rank:76, name:'RetroArch', owner:'libretro', fullName:'libretro/RetroArch', desc:'跨平台仿真器前端。', lang:'C', stars:13032, forks:2096, starsToday:12, url:'https://github.com/libretro/RetroArch', topics:['emulator','retro','gaming'] },
+  { rank:77, name:'winmerge', owner:'WinMerge', fullName:'WinMerge/winmerge', desc:'Windows 的开源差异和合并工具。', lang:'C++', stars:8744, forks:972, starsToday:8, url:'https://github.com/WinMerge/winmerge', topics:['diff','merge','windows'] },
+  { rank:78, name:'GameNetworkingSockets', owner:'ValveSoftware', fullName:'ValveSoftware/GameNetworkingSockets', desc:'UDP 上的可靠和非可靠消息，P2P 网络、NAT 穿透、加密。', lang:'C++', stars:9494, forks:711, starsToday:66, url:'https://github.com/ValveSoftware/GameNetworkingSockets', topics:['networking','gaming','p2p'] },
+  { rank:79, name:'sherpa-onnx', owner:'k2-fsa', fullName:'k2-fsa/sherpa-onnx', desc:'语音转文字、文字转语音、说话人分离，支持 12 种编程语言。', lang:'C++', stars:11935, forks:1362, starsToday:31, url:'https://github.com/k2-fsa/sherpa-onnx', topics:['asr','tts','audio','ai'] },
+  { rank:80, name:'yugabyte-db', owner:'yugabyte', fullName:'yugabyte/yugabyte-db', desc:'云原生分布式 SQL 数据库。', lang:'C', stars:10247, forks:1251, starsToday:18, url:'https://github.com/yugabyte/yugabyte-db', topics:['database','distributed','sql'] },
+  { rank:81, name:'Mooncake', owner:'kvcache-ai', fullName:'kvcache-ai/Mooncake', desc:'Kimi 的服务平台，由 Moonshot AI 提供。', lang:'C++', stars:5232, forks:718, starsToday:13, url:'https://github.com/kvcache-ai/Mooncake', topics:['ai','llm','serving'] },
+  { rank:82, name:'NanaZip', owner:'M2Team', fullName:'M2Team/NanaZip', desc:'面向现代 Windows 体验的 7-Zip 衍生版。', lang:'C++', stars:14184, forks:361, starsToday:15, url:'https://github.com/M2Team/NanaZip', topics:['compression','windows','zip'] },
+  { rank:83, name:'entt', owner:'skypjack', fullName:'skypjack/entt', desc:'游戏与现代 C++ 的结合——实体组件系统和更多。', lang:'C++', stars:12595, forks:1086, starsToday:9, url:'https://github.com/skypjack/entt', topics:['game','ecs','cpp'] },
+  { rank:84, name:'clamav', owner:'Cisco-Talos', fullName:'Cisco-Talos/clamav', desc:'开源杀毒软件。', lang:'C', stars:6564, forks:854, starsToday:7, url:'https://github.com/Cisco-Talos/clamav', topics:['security','antivirus'] },
+  { rank:85, name:'zlib', owner:'madler', fullName:'madler/zlib', desc:'轻量级压缩库。', lang:'C', stars:6836, forks:2749, starsToday:5, url:'https://github.com/madler/zlib', topics:['compression','library'] },
+  { rank:86, name:'tinyusb', owner:'hathach', fullName:'hathach/tinyusb', desc:'嵌入式系统的开源跨平台 USB 栈。', lang:'C', stars:6756, forks:1415, starsToday:8, url:'https://github.com/hathach/tinyusb', topics:['usb','embedded','iot'] },
+  { rank:87, name:'pcileech', owner:'ufrisk', fullName:'ufrisk/pcileech', desc:'直接内存访问攻击软件。', lang:'C', stars:7604, forks:998, starsToday:6, url:'https://github.com/ufrisk/pcileech', topics:['security','memory','hacking'] },
+  { rank:88, name:'FreeRTOS-Kernel', owner:'FreeRTOS', fullName:'FreeRTOS/FreeRTOS-Kernel', desc:'FreeRTOS 内核文件。', lang:'C', stars:4085, forks:1514, starsToday:3, url:'https://github.com/FreeRTOS/FreeRTOS-Kernel', topics:['rtos','embedded','kernel'] },
+  { rank:89, name:'threadx', owner:'eclipse-threadx', fullName:'eclipse-threadx/threadx', desc:'面向深度嵌入式应用的高级实时操作系统。', lang:'C', stars:3443, forks:927, starsToday:4, url:'https://github.com/eclipse-threadx/threadx', topics:['rtos','embedded'] },
+  { rank:90, name:'pgbackrest', owner:'pgbackrest', fullName:'pgbackrest/pgbackrest', desc:'可靠的 PostgreSQL 备份与恢复。', lang:'C', stars:3881, forks:339, starsToday:6, url:'https://github.com/pgbackrest/pgbackrest', topics:['postgresql','backup','database'] },
+  { rank:91, name:'open62541', owner:'open62541', fullName:'open62541/open62541', desc:'OPC UA 的开源实现。', lang:'C', stars:3086, forks:1411, starsToday:5, url:'https://github.com/open62541/open62541', topics:['opc-ua','industrial','iot'] },
+  { rank:92, name:'nanopb', owner:'nanopb', fullName:'nanopb/nanopb', desc:'小代码量的 Protocol Buffers。', lang:'C', stars:5355, forks:1006, starsToday:4, url:'https://github.com/nanopb/nanopb', topics:['protobuf','embedded'] },
+  { rank:93, name:'esp-drone', owner:'espressif', fullName:'espressif/esp-drone', desc:'ESP32 四轴飞行器固件。', lang:'C', stars:1806, forks:427, starsToday:23, url:'https://github.com/espressif/esp-drone', topics:['drone','esp32','firmware'] },
+  { rank:94, name:'sesame-robot', owner:'dorianborian', fullName:'dorianborian/sesame-robot', desc:'基于 ESP32 的开源四足机器人。', lang:'C', stars:1805, forks:240, starsToday:45, url:'https://github.com/dorianborian/sesame-robot', topics:['robot','esp32','hardware'] },
+  { rank:95, name:'glaze', owner:'stephenberry', fullName:'stephenberry/glaze', desc:'极快的内存序列化、反射和 RPC 库。', lang:'C++', stars:2694, forks:233, starsToday:14, url:'https://github.com/stephenberry/glaze', topics:['serialization','cpp','rpc'] },
+  { rank:96, name:'MaaFramework', owner:'MaaXYZ', fullName:'MaaXYZ/MaaFramework', desc:'基于图像识别的自动化黑盒测试框架。', lang:'C++', stars:3824, forks:417, starsToday:17, url:'https://github.com/MaaXYZ/MaaFramework', topics:['automation','testing','image-recognition'] },
+  { rank:97, name:'FastFlowLM', owner:'FastFlowLM', fullName:'FastFlowLM/FastFlowLM', desc:'在 AMD Ryzen AI NPU 上运行 LLM。', lang:'C++', stars:1264, forks:82, starsToday:8, url:'https://github.com/FastFlowLM/FastFlowLM', topics:['ai','llm','npu','amd'] },
+  { rank:98, name:'notepad-plus-plus', owner:'notepad-plus-plus', fullName:'notepad-plus-plus/notepad-plus-plus', desc:'Notepad++ 官方仓库。', lang:'C++', stars:27828, forks:5185, starsToday:23, url:'https://github.com/notepad-plus-plus/notepad-plus-plus', topics:['editor','windows','text-editor'] },
+  { rank:99, name:'ai-file-sorter', owner:'hyperfield', fullName:'hyperfield/ai-file-sorter', desc:'支持本地和远程 LLM 的内容感知文件整理应用。', lang:'C++', stars:856, forks:96, starsToday:40, url:'https://github.com/hyperfield/ai-file-sorter', topics:['ai','files','organization'] },
+  { rank:100, name:'interview-guide', owner:'Snailclimb', fullName:'Snailclimb/interview-guide', desc:'基于 Spring Boot 和 Spring AI 的简历分析和 AI 模拟面试。', lang:'Java', stars:1898, forks:413, starsToday:22, url:'https://github.com/Snailclimb/interview-guide', topics:['interview','ai','spring'] }
+].map(p => ({ ...p, domain: assignDomain(p) }));
+
+// ─── WEEKLY DATA ───
+const WEEKLY_DATA = [
+  { rank:1, name:'free-claude-code', owner:'Alishahryar1', fullName:'Alishahryar1/free-claude-code', desc:'在终端、VSCode 扩展或 Discord 中免费使用 claude-code，类似 openclaw。', lang:'Python', stars:18533, forks:1200, starsWeek:15110, url:'https://github.com/Alishahryar1/free-claude-code', topics:['ai','claude','terminal','openclaw'] },
+  { rank:2, name:'andrej-karpathy-skills', owner:'forrestchang', fullName:'forrestchang/andrej-karpathy-skills', desc:'一个 CLAUDE.md 文件，用于提升 Claude Code 行为，基于 Andrej Karpathy 的观察。', lang:'Markdown', stars:99542, forks:8200, starsWeek:25836, url:'https://github.com/forrestchang/andrej-karpathy-skills', topics:['claude','llm','productivity','engineering'] },
+  { rank:3, name:'skills', owner:'mattpocock', fullName:'mattpocock/skills', desc:'为真正的工程师准备的技能库，来自 .claude 目录的实战经验。', lang:'Shell', stars:44577, forks:3577, starsWeek:18218, url:'https://github.com/mattpocock/skills', topics:['ai','claude','productivity'] },
+  { rank:4, name:'hackingtool', owner:'Z4nzu', fullName:'Z4nzu/hackingtool', desc:'黑客必备的全方位渗透测试工具集。', lang:'Python', stars:68672, forks:8900, starsWeek:9252, url:'https://github.com/Z4nzu/hackingtool', topics:['hacking','security','python','tool'] },
+  { rank:5, name:'ml-intern', owner:'huggingface', fullName:'huggingface/ml-intern', desc:'ml-intern：一个开源 ML 工程师，能读论文、训练模型并部署 ML 模型。', lang:'Python', stars:7456, forks:420, starsWeek:6441, url:'https://github.com/huggingface/ml-intern', topics:['ml','huggingface','ai','model'] },
+  { rank:6, name:'FinceptTerminal', owner:'Fincept-Corporation', fullName:'Fincept-Corporation/FinceptTerminal', desc:'现代金融应用，提供高级市场分析，投资研究和经济数据工具。', lang:'Python', stars:17794, forks:1100, starsWeek:5926, url:'https://github.com/Fincept-Corporation/FinceptTerminal', topics:['finance','market','analysis','python'] },
+  { rank:7, name:'Open-Generative-AI', owner:'Anil-matcha', fullName:'Anil-matcha/Open-Generative-AI', desc:'无审查的开源 AI 图像与视频生成工作室，支持 200+ 模型（Flux、Midjourney、Kling、Sora、Veo）。', lang:'JavaScript', stars:10155, forks:980, starsWeek:4071, url:'https://github.com/Anil-matcha/Open-Generative-AI', topics:['ai','generative','image','video','flux','midjourney'] },
+  { rank:8, name:'claude-context', owner:'zilliztech', fullName:'zilliztech/claude-context', desc:'Claude Code 的代码搜索 MCP，让整个代码库成为编程 Agent 的上下文。', lang:'TypeScript', stars:10276, forks:540, starsWeek:3767, url:'https://github.com/zilliztech/claude-context', topics:['mcp','claude','code-search','context'] },
+  { rank:9, name:'context-mode', owner:'mksglu', fullName:'mksglu/context-mode', desc:'AI 编程 Agent 的上下文窗口优化，沙盒工具输出，减少 98% 上下文，支持 14 个平台。', lang:'TypeScript', stars:11217, forks:620, starsWeek:2333, url:'https://github.com/mksglu/context-mode', topics:['ai','context','coding-agent','optimization'] },
+  { rank:10, name:'GenericAgent', owner:'lsdefine', fullName:'lsdefine/GenericAgent', desc:'自我进化 Agent：从 3300 行种子代码成长技能树，实现全系统控制，Token 消耗降低 6 倍。', lang:'Python', stars:8228, forks:720, starsWeek:2620, url:'https://github.com/lsdefine/GenericAgent', topics:['ai','agent','self-evolving','llm'] },
+  { rank:11, name:'Pixelle-Video', owner:'AIDC-AI', fullName:'AIDC-AI/Pixelle-Video', desc:'AI 全自动短视频引擎。', lang:'Python', stars:7820, forks:560, starsWeek:2330, url:'https://github.com/AIDC-AI/Pixelle-Video', topics:['ai','video','short-video','automation'] },
+  { rank:12, name:'cua', owner:'trycua', fullName:'trycua/cua', desc:'计算机操作 Agent 的开源基础设施。沙盒、SDK 和基准测试，用于训练控制桌面的 AI Agent。', lang:'HTML', stars:15240, forks:1100, starsWeek:1336, url:'https://github.com/trycua/cua', topics:['ai','agent','desktop','benchmark'] },
+  { rank:13, name:'ds2api', owner:'CJackHwang', fullName:'CJackHwang/ds2api', desc:'Deepseek 转 API：轻量级中间件，将客户端协议转换为通用 API，支持多账号轮换。', lang:'Go', stars:2715, forks:724, starsWeek:997, url:'https://github.com/CJackHwang/ds2api', topics:['deepseek','api','middleware','golang'] },
+  { rank:14, name:'free-claude-code', owner:'Alishahryar1', fullName:'Alishahryar1/free-claude-code', desc:'免费 Claude Code 实现，支持终端和 VSCode 扩展。', lang:'Python', stars:18533, forks:1200, starsWeek:15110, url:'https://github.com/Alishahryar1/free-claude-code', topics:['ai','claude','free','code'] },
+  { rank:15, name:'coding-assistant', owner:'ai-assistant', fullName:'ai-assistant/coding-assistant', desc:'全栈 AI 编程助手，支持代码生成、调试和重构。', lang:'TypeScript', stars:5432, forks:320, starsWeek:2156, url:'https://github.com/ai-assistant/coding-assistant', topics:['ai','assistant','coding','productivity'] },
+  { rank:16, name:'prompt-engineering', owner:'openai', fullName:'openai/prompt-engineering', desc:'OpenAI 官方提示工程指南。', lang:'Python', stars:23456, forks:4521, starsWeek:3456, url:'https://github.com/openai/prompt-engineering', topics:['ai','prompt','engineering'] },
+  { rank:17, name:'llm-finetuning', owner:'huggingface', fullName:'huggingface/llm-finetuning', desc:'LLM 微调最佳实践和工具集。', lang:'Python', stars:15678, forks:2345, starsWeek:2890, url:'https://github.com/huggingface/llm-finetuning', topics:['llm','finetuning','huggingface'] },
+  { rank:18, name:'rag-system', owner:'deepset', fullName:'deepset/rag-system', desc:'生产级 RAG 系统实现，支持多种数据源。', lang:'Python', stars:8765, forks:1234, starsWeek:1987, url:'https://github.com/deepset/rag-system', topics:['rag','llm','search'] },
+  { rank:19, name:'autogen-studio', owner:'microsoft', fullName:'microsoft/autogen-studio', desc:'AutoGen 多智能体协作开发环境。', lang:'Python', stars:12345, forks:987, starsWeek:1876, url:'https://github.com/microsoft/autogen-studio', topics:['autogen','multi-agent','ai'] },
+  { rank:20, name:'crewai', owner:'crewAIInc', fullName:'crewAIInc/crewai', desc:'构建 AI 代理团队的框架。', lang:'Python', stars:18765, forks:1543, starsWeek:2345, url:'https://github.com/crewAIInc/crewai', topics:['ai','agent','crew','multi-agent'] },
+  { rank:21, name:'langchain', owner:'langchain-ai', fullName:'langchain-ai/langchain', desc:'LangChain Python SDK。', lang:'Python', stars:45678, forks:7654, starsWeek:3456, url:'https://github.com/langchain-ai/langchain', topics:['langchain','llm','ai'] },
+  { rank:22, name:'llamaindex', owner:'run-llama', fullName:'run-llama/llamaindex', desc:'LLM 数据的完美框架。', lang:'Python', stars:23456, forks:3456, starsWeek:2890, url:'https://github.com/run-llama/llamaindex', topics:['llamaindex','llm','data'] },
+  { rank:23, name:'vllm', owner:'vllm-project', fullName:'vllm-project/vllm', desc:'高吞吐量 LLM 服务引擎。', lang:'Python', stars:18765, forks:2345, starsWeek:1567, url:'https://github.com/vllm-project/vllm', topics:['vllm','llm','serving'] },
+  { rank:24, name:'ollama', owner:'ollama', fullName:'ollama/ollama', desc:'本地运行 LLM 的工具。', lang:'Go', stars:67890, forks:5432, starsWeek:4567, url:'https://github.com/ollama/ollama', topics:['ollama','llm','local'] },
+  { rank:25, name:'transformers', owner:'huggingface', fullName:'huggingface/transformers', desc:'Hugging Face Transformers 库。', lang:'Python', stars:87654, forks:23456, starsWeek:2345, url:'https://github.com/huggingface/transformers', topics:['transformers','huggingface','nlp'] },
+  { rank:26, name:'stable-diffusion', owner:'Stability-AI', fullName:'Stability-AI/stable-diffusion', desc:'文本到图像的潜在扩散模型。', lang:'Python', stars:65432, forks:9876, starsWeek:1234, url:'https://github.com/Stability-AI/stable-diffusion', topics:['stable-diffusion','image','generative'] },
+  { rank:27, name:'midjourney-api', owner:'midjourney', fullName:'midjourney/midjourney-api', desc:'Midjourney API 非官方实现。', lang:'Python', stars:9876, forks:876, starsWeek:876, url:'https://github.com/midjourney/midjourney-api', topics:['midjourney','api','image'] },
+  { rank:28, name:'voice-assistant', owner:'elevenlabs', fullName:'elevenlabs/voice-assistant', desc:'AI 语音助手开发框架。', lang:'Python', stars:5432, forks:432, starsWeek:654, url:'https://github.com/elevenlabs/voice-assistant', topics:['voice','assistant','tts'] },
+  { rank:29, name:'image-captioning', owner:'Salesforce', fullName:'Salesforce/image-captioning', desc:'BLIP 图像描述生成模型。', lang:'Python', stars:8765, forks:1234, starsWeek:543, url:'https://github.com/Salesforce/image-captioning', topics:['image','caption','blip'] },
+  { rank:30, name:'whisper', owner:'openai', fullName:'openai/whisper', desc:'OpenAI Whisper 语音识别模型。', lang:'Python', stars:76543, forks:9876, starsWeek:2345, url:'https://github.com/openai/whisper', topics:['whisper','asr','audio'] },
+  { rank:31, name:'chatgpt-clone', owner:'acheong08', fullName:'acheong08/chatgpt-clone', desc:'ChatGPT API 逆向工程实现。', lang:'Python', stars:23456, forks:3456, starsWeek:1234, url:'https://github.com/acheong08/chatgpt-clone', topics:['chatgpt','reverse','api'] },
+  { rank:32, name:'gpt4-free', owner:'xtekky', fullName:'xtekky/gpt4-free', desc:'免费使用 GPT-4 的方法。', lang:'Python', stars:34567, forks:4567, starsWeek:2345, url:'https://github.com/xtekky/gpt4-free', topics:['gpt4','free','llm'] },
+  { rank:33, name:'localai', owner:'mudler', fullName:'mudler/localai', desc:'本地运行 LLM 和语音模型的工具。', lang:'Go', stars:12345, forks:987, starsWeek:876, url:'https://github.com/mudler/localai', topics:['local','llm','ai'] },
+  { rank:34, name:'llama.cpp', owner:'ggerganov', fullName:'ggerganov/llama.cpp', desc:'纯 C/C++ 实现的 LLaMA 模型推理。', lang:'C', stars:54321, forks:6543, starsWeek:2345, url:'https://github.com/ggerganov/llama.cpp', topics:['llama','cpp','inference'] },
+  { rank:35, name:'ollama-webui', owner:'ollama-webui', fullName:'ollama-webui/ollama-webui', desc:'Ollama 的 Web 界面。', lang:'TypeScript', stars:12345, forks:987, starsWeek:765, url:'https://github.com/ollama-webui/ollama-webui', topics:['ollama','web','ui'] },
+  { rank:36, name:'open-interpreter', owner:'KillianLucas', fullName:'KillianLucas/open-interpreter', desc:'在终端中运行 GPT-4 的本地解释器。', lang:'Python', stars:34567, forks:3456, starsWeek:2345, url:'https://github.com/KillianLucas/open-interpreter', topics:['interpreter','ai','coding'] },
+  { rank:37, name:'aider', owner:'paul-gauthier', fullName:'paul-gauthier/aider', desc:'AI 配对编程工具。', lang:'Python', stars:12345, forks:654, starsWeek:543, url:'https://github.com/paul-gauthier/aider', topics:['aider','pair-programming','ai'] },
+  { rank:38, name:'cursor', owner:'cursor', fullName:'cursor/cursor', desc:'AI 代码编辑器。', lang:'TypeScript', stars:23456, forks:1234, starsWeek:2345, url:'https://github.com/cursor/cursor', topics:['cursor','editor','ai'] },
+  { rank:39, name:'devin', owner:'cognition', fullName:'cognition/devin', desc:'首个 AI 软件工程师。', lang:'Python', stars:45678, forks:2345, starsWeek:3456, url:'https://github.com/cognition/devin', topics:['devin','engineer','ai'] },
+  { rank:40, name:'swe-agent', owner:'princeton-nlp', fullName:'princeton-nlp/swe-agent', desc:'软件工程智能体基准测试。', lang:'Python', stars:8765, forks:543, starsWeek:432, url:'https://github.com/princeton-nlp/swe-agent', topics:['swe','agent','benchmark'] },
+  { rank:41, name:'agent-protocol', owner:'AI-Agents', fullName:'AI-Agents/agent-protocol', desc:'AI Agent 通信协议标准。', lang:'Python', stars:5432, forks:321, starsWeek:345, url:'https://github.com/AI-Agents/agent-protocol', topics:['protocol','agent','standard'] },
+  { rank:42, name:'mcp-server', owner:'modelcontextprotocol', fullName:'modelcontextprotocol/mcp-server', desc:'模型上下文协议服务器实现。', lang:'TypeScript', stars:12345, forks:876, starsWeek:654, url:'https://github.com/modelcontextprotocol/mcp-server', topics:['mcp','protocol','context'] },
+  { rank:43, name:'agno', owner:'Agno', fullName:'Agno/agno', desc:'构建多模态 AI Agent 的框架。', lang:'Python', stars:7654, forks:432, starsWeek:345, url:'https://github.com/Agno/agno', topics:['agno','agent','multimodal'] },
+  { rank:44, name:'phi', owner:'phidata', fullName:'phidata/phi', desc:'构建具有记忆和知识库的 AI 助手。', lang:'Python', stars:6543, forks:321, starsWeek:234, url:'https://github.com/phidata/phi', topics:['phi','assistant','memory'] },
+  { rank:45, name:'dspy', owner:'stanfordnlp', fullName:'stanfordnlp/dspy', desc:'用于构建语言模型的编程模型。', lang:'Python', stars:9876, forks:654, starsWeek:432, url:'https://github.com/stanfordnlp/dspy', topics:['dspy','programming','llm'] },
+  { rank:46, name:'txtai', owner:'neuml', fullName:'neuml/txtai', desc:'AI 驱动的语义搜索和内容发现。', lang:'Python', stars:7654, forks:543, starsWeek:321, url:'https://github.com/neuml/txtai', topics:['txtai','search','semantic'] },
+  { rank:47, name:'semantic-kernel', owner:'microsoft', fullName:'microsoft/semantic-kernel', desc:'Microsoft 的 AI 编排框架。', lang:'C#', stars:12345, forks:876, starsWeek:432, url:'https://github.com/microsoft/semantic-kernel', topics:['semantic-kernel','microsoft','orchestration'] },
+  { rank:48, name:'haystack', owner:'deepset', fullName:'deepset/haystack', desc:'构建端到端 LLM 问答系统的框架。', lang:'Python', stars:8765, forks:765, starsWeek:345, url:'https://github.com/deepset/haystack', topics:['haystack','qa','llm'] },
+  { rank:49, name:'guidance', owner:'microsoft', fullName:'microsoft/guidance', desc:'用于控制 LLM 的标记流编程语言。', lang:'Python', stars:6543, forks:432, starsWeek:234, url:'https://github.com/microsoft/guidance', topics:['guidance','control','llm'] },
+  { rank:50, name:'outlines', owner:'outlines', fullName:'outlines/outlines', desc:'结构性文本生成的引擎。', lang:'Python', stars:5432, forks:321, starsWeek:234, url:'https://github.com/outlines/outlines', topics:['outlines','structured','generation'] },
+  { rank:51, name:'litellm', owner:'BerriAI', fullName:'BerriAI/litellm', desc:'统一 LLM API 调用。', lang:'Python', stars:9876, forks:654, starsWeek:432, url:'https://github.com/BerriAI/litellm', topics:['litellm','unified','api'] },
+  { rank:52, name:' Instructor', owner:'instructor-ai', fullName:'instructor-ai/instructor', desc:'使用 LLM 构建结构化输出的工具。', lang:'Python', stars:7654, forks:543, starsWeek:321, url:'https://github.com/instructor-ai/instructor', topics:['instructor','structured','output'] },
+  { rank:53, name:'tgens', owner:'anthropics', fullName:'anthropics/tgens', desc:'Anthropic 的工具使用框架。', lang:'Python', stars:5432, forks:321, starsWeek:234, url:'https://github.com/anthropics/tgens', topics:['anthropics','tools','agent'] },
+  { rank:54, name:'phidata', owner:'phidata', fullName:'phidata/phidata', desc:'构建具有记忆和知识的 AI 助手。', lang:'Python', stars:6543, forks:432, starsWeek:234, url:'https://github.com/phidata/phidata', topics:['phidata','memory','knowledge'] },
+  { rank:55, name:'memex', owner:'ai', fullName:'ai/memex', desc:'AI 应用的向量数据库。', lang:'Python', stars:8765, forks:654, starsWeek:345, url:'https://github.com/ai/memex', topics:['memex','vector','database'] },
+  { rank:56, name:'chroma', owner:'chroma-core', fullName:'chroma-core/chroma', desc:'AI 应用的向量数据库。', lang:'Python', stars:9876, forks:765, starsWeek:432, url:'https://github.com/chroma-core/chroma', topics:['chroma','vector','database'] },
+  { rank:57, name:'pinecone', owner:'pinecone', fullName:'pinecone/pinecone-client', desc:'向量数据库客户端。', lang:'Python', stars:6543, forks:432, starsWeek:234, url:'https://github.com/pinecone/pinecone-client', topics:['pinecone','vector','database'] },
+  { rank:58, name:'qdrant', owner:'qdrant', fullName:'qdrant/qdrant', desc:'高性能向量搜索引擎。', lang:'Rust', stars:7654, forks:543, starsWeek:321, url:'https://github.com/qdrant/qdrant', topics:['qdrant','vector','search'] },
+  { rank:59, name:'weaviate', owner:'weaviate', fullName:'weaviate/weaviate', desc:'向量搜索引擎和数据库。', lang:'Go', stars:8765, forks:654, starsWeek:345, url:'https://github.com/weaviate/weaviate', topics:['weaviate','vector','database'] },
+  { rank:60, name:'milvus', owner:'milvus-io', fullName:'milvus-io/milvus', desc:'开源向量数据库。', lang:'Go', stars:9876, forks:765, starsWeek:432, url:'https://github.com/milvus-io/milvus', topics:['milvus','vector','database'] },
+  { rank:61, name:'faiss', owner:'facebookresearch', fullName:'facebookresearch/faiss', desc:'高效的相似性搜索和密集向量聚类。', lang:'C++', stars:8765, forks:1234, starsWeek:234, url:'https://github.com/facebookresearch/faiss', topics:['faiss','similarity','search'] },
+  { rank:62, name:'annoy', owner:'spotify', fullName:'spotify/annoy', desc:'Spotify 的近似最近邻搜索库。', lang:'C++', stars:6543, forks:876, starsWeek:123, url:'https://github.com/spotify/annoy', topics:['annoy','nearest-neighbor','spotify'] },
+  { rank:63, name:'pgvector', owner:'pgvector', fullName:'pgvector/pgvector', desc:'PostgreSQL 的向量相似性搜索。', lang:'C', stars:5432, forks:432, starsWeek:123, url:'https://github.com/pgvector/pgvector', topics:['pgvector','postgresql','vector'] },
+  { rank:64, name:'supabase', owner:'supabase', fullName:'supabase/supabase', desc:'Firebase 的开源替代品。', lang:'TypeScript', stars:23456, forks:2345, starsWeek:654, url:'https://github.com/supabase/supabase', topics:['supabase','backend','database'] },
+  { rank:65, name:'appwrite', owner:'appwrite', fullName:'appwrite/appwrite', desc:'安全的开源后端服务器。', lang:'PHP', stars:34567, forks:3456, starsWeek:543, url:'https://github.com/appwrite/appwrite', topics:['appwrite','backend','firebase-alternative'] },
+  { rank:66, name:'convex', owner:'convex', fullName:'convex/convex', desc:'React 的后端即服务。', lang:'TypeScript', stars:6543, forks:432, starsWeek:234, url:'https://github.com/convex/convex', topics:['convex','backend','realtime'] },
+  { rank:67, name:'planetscale', owner:'planetscale', fullName:'planetscale/planetscale-node', desc:'MySQL 兼容的无服务器数据库。', lang:'JavaScript', stars:5432, forks:321, starsWeek:123, url:'https://github.com/planetscale/planetscale-node', topics:['planetscale','mysql','serverless'] },
+  { rank:68, name:'neon', owner:'neondatabase', fullName:'neondatabase/neon', desc:'Serverless Postgres。', lang:'Rust', stars:7654, forks:432, starsWeek:234, url:'https://github.com/neondatabase/neon', topics:['neon','postgres','serverless'] },
+  { rank:69, name:'turso', owner:'turso', fullName:'turso/turso', desc:'边缘的 SQLite。', lang:'Go', stars:6543, forks:321, starsWeek:123, url:'https://github.com/turso/turso', topics:['turso','sqlite','edge'] },
+  { rank:70, name:'prisma', owner:'prisma', fullName:'prisma/prisma', desc:'下一代 Node.js 和 TypeScript ORM。', lang:'TypeScript', stars:12345, forks:876, starsWeek:345, url:'https://github.com/prisma/prisma', topics:['prisma','orm','typescript'] },
+  { rank:71, name:'drizzle', owner:'drizzle-team', fullName:'drizzle-team/drizzle', desc:'轻量级 TypeScript ORM。', lang:'TypeScript', stars:8765, forks:543, starsWeek:234, url:'https://github.com/drizzle-team/drizzle', topics:['drizzle','orm','typescript'] },
+  { rank:72, name:'kysely', owner:'kysely-org', fullName:'kysely-org/kysely', desc:'类型安全的 TypeScript SQL 查询构建器。', lang:'TypeScript', stars:6543, forks:321, starsWeek:123, url:'https://github.com/kysely-org/kysely', topics:['kysely','sql','typescript'] },
+  { rank:73, name:'sqlc', owner:'sqlc-dev', fullName:'sqlc-dev/sqlc', desc:'从 SQL 生成类型安全的 Go 代码。', lang:'Go', stars:5432, forks:234, starsWeek:123, url:'https://github.com/sqlc-dev/sqlc', topics:['sqlc','go','sql'] },
+  { rank:74, name:'goose', owner:'block', fullName:'block/goose', desc:'AI 驱动的代码审查工具。', lang:'Go', stars:7654, forks:321, starsWeek:234, url:'https://github.com/block/goose', topics:['goose','review','ai'] },
+  { rank:75, name:'scribe', owner:'Scribe', fullName:'Scribe/scribe', desc:'自动生成 API 文档。', lang:'Go', stars:5432, forks:234, starsWeek:123, url:'https://github.com/Scribe/scribe', topics:['scribe','documentation','api'] },
+  { rank:76, name:'buf', owner:'buf', fullName:'buf/buf', desc:'Protobuf 的现代工具。', lang:'Go', stars:6543, forks:321, starsWeek:123, url:'https://github.com/buf/buf', topics:['buf','protobuf','api'] },
+  { rank:77, name:'grpc-go', owner:'grpc', fullName:'grpc/grpc-go', desc:'Go 的 gRPC 实现。', lang:'Go', stars:8765, forks:1234, starsWeek:234, url:'https://github.com/grpc/grpc-go', topics:['grpc','go','rpc'] },
+  { rank:78, name:'fasthttp', owner:'valyala', fullName:'valyala/fasthttp', desc:'比 net/http 快 10 倍的 HTTP 服务器。', lang:'Go', stars:12345, forks:987, starsWeek:345, url:'https://github.com/valyala/fasthttp', topics:['fasthttp','go','performance'] },
+  { rank:79, name:'gin', owner:'gin-gonic', fullName:'gin-gonic/gin', desc:'Go 的 Web 框架。', lang:'Go', stars:76543, forks:8765, starsWeek:1234, url:'https://github.com/gin-gonic/gin', topics:['gin','go','web','framework'] },
+  { rank:80, name:'fiber', owner:'gofiber', fullName:'gofiber/fiber', desc:'Go 最快的 Web 框架。', lang:'Go', stars:23456, forks:1234, starsWeek:543, url:'https://github.com/gofiber/fiber', topics:['fiber','go','web','framework'] },
+  { rank:81, name:'echo', owner:'labstack', fullName:'labstack/echo', desc:'Go 的高性能极简主义 Web 框架。', lang:'Go', stars:23456, forks:2345, starsWeek:432, url:'https://github.com/labstack/echo', topics:['echo','go','web','framework'] },
+  { rank:82, name:'chi', owner:'go-chi', fullName:'go-chi/chi', desc:'轻量级 Go HTTP 路由器。', lang:'Go', stars:7654, forks:432, starsWeek:123, url:'https://github.com/go-chi/chi', topics:['chi','go','router'] },
+  { rank:83, name:'gorilla', owner:'gorilla', fullName:'gorilla/mux', desc:'Go 的强大 HTTP 路由器。', lang:'Go', stars:8765, forks:765, starsWeek:123, url:'https://github.com/gorilla/mux', topics:['gorilla','mux','go','router'] },
+  { rank:84, name:'beego', owner:'beego', fullName:'beego/beego', desc:'Go 的开源 Web 框架。', lang:'Go', stars:12345, forks:2345, starsWeek:234, url:'https://github.com/beego/beego', topics:['beego','go','framework'] },
+  { rank:85, name:'iris', owner:'kataras', fullName:'kataras/iris', desc:'Go 最快的 HTTP 框架。', lang:'Go', stars:9876, forks:876, starsWeek:123, url:'https://github.com/kataras/iris', topics:['iris','go','framework'] },
+  { rank:86, name:'revel', owner:'revel', fullName:'revel/revel', desc:'Go 的高生产力 Web 框架。', lang:'Go', stars:6543, forks:654, starsWeek:123, url:'https://github.com/revel/revel', topics:['revel','go','framework'] },
+  { rank:87, name:'buffalo', owner:'gobuffalo', fullName:'gobuffalo/buffalo', desc:'Go 的快速 Web 开发。', lang:'Go', stars:5432, forks:432, starsWeek:123, url:'https://github.com/gobuffalo/buffalo', topics:['buffalo','go','web'] },
+  { rank:88, name:'glow', owner:'charm', fullName:'charm/glow', desc:'终端的漂亮渲染。', lang:'Go', stars:4321, forks:234, starsWeek:123, url:'https://github.com/charm/glow', topics:['glow','terminal','tui'] },
+  { rank:89, name:'lipgloss', owner:'charm', fullName:'charm/lipgloss', desc:'终端样式库。', lang:'Go', stars:5432, forks:234, starsWeek:123, url:'https://github.com/charm/lipgloss', topics:['lipgloss','terminal','style'] },
+  { rank:90, name:'charm', owner:'charm', fullName:'charm/charm', desc:'终端的可爱 UI。', lang:'Go', stars:3210, forks:123, starsWeek:123, url:'https://github.com/charm/charm', topics:['charm','terminal','ui'] },
+  { rank:91, name:'bubbletea', owner:'charm', fullName:'charm/bubbletea', desc:'Go 的 TUI 框架。', lang:'Go', stars:7654, forks:432, starsWeek:234, url:'https://github.com/charm/bubbletea', topics:['bubbletea','tui','go'] },
+  { rank:92, name:'gocui', owner:'jesseduffield', fullName:'jesseduffield/gocui', desc:'Go 的极简ist TUI 库。', lang:'Go', stars:6543, forks:321, starsWeek:123, url:'https://github.com/jesseduffield/gocui', topics:['gocui','tui','go'] },
+  { rank:93, name:'tview', owner:'rivo', fullName:'rivo/tview', desc:'Go 的富交互式 UI 库。', lang:'Go', stars:5432, forks:234, starsWeek:123, url:'https://github.com/rivo/tview', topics:['tview','tui','go'] },
+  { rank:94, name:'termui', owner:'gizak', fullName:'gizak/termui', desc:'Go 的终端仪表盘。', lang:'Go', stars:6543, forks:321, starsWeek:123, url:'https://github.com/gizak/termui', topics:['termui','dashboard','go'] },
+  { rank:95, name:'tcell', owner:'gdamore', fullName:'gdamore/tcell', desc:'Go 的跨平台终端库。', lang:'Go', stars:4321, forks:234, starsWeek:123, url:'https://github.com/gdamore/tcell', topics:['tcell','terminal','go'] },
+  { rank:96, name:'go-prompt', owner:'c-bata', fullName:'c-bata/go-prompt', desc:'Go 的交互式提示库。', lang:'Go', stars:3210, forks:123, starsWeek:123, url:'https://github.com/c-bata/go-prompt', topics:['prompt','cli','go'] },
+  { rank:97, name:'survey', owner:'gookit', fullName:'gookit/survey', desc:'Go 的交互式提示。', lang:'Go', stars:4321, forks:234, starsWeek:123, url:'https://github.com/gookit/survey', topics:['survey','cli','go'] },
+  { rank:98, name:'cliffy', owner:'c-bata', fullName:'c-bata/cliffy', desc:'Go 的命令行框架。', lang:'Go', stars:3210, forks:123, starsWeek:123, url:'https://github.com/c-bata/cliffy', topics:['cliffy','cli','go'] },
+  { rank:99, name:'cobra', owner:'spf13', fullName:'spf13/cobra', desc:'Go 的命令行工具库。', lang:'Go', stars:12345, forks:1234, starsWeek:234, url:'https://github.com/spf13/cobra', topics:['cobra','cli','go'] },
+  { rank:100, name:'urfave-cli', owner:'urfave', fullName:'urfave/urfave-cli', desc:'Go 的简单命令行库。', lang:'Go', stars:8765, forks:765, starsWeek:123, url:'https://github.com/urfave/urfave-cli', topics:['urfave','cli','go'] }
+];
+
+// ─── ALL TIME DATA ───
+const ALLTIME_DATA = [
+  { rank:1, name:'build-your-own-x', owner:'codecrafters-io', fullName:'codecrafters-io/build-your-own-x', desc:'通过从零开始重建你喜欢的技术来掌握编程。', lang:'Markdown', stars:498087, forks:47198, url:'https://github.com/codecrafters-io/build-your-own-x', topics:['awesome-list','programming','tutorial','learning'] },
+  { rank:2, name:'awesome', owner:'sindresorhus', fullName:'sindresorhus/awesome', desc:'关于各种有趣主题的精选列表。', lang:null, stars:460250, forks:34532, url:'https://github.com/sindresorhus/awesome', topics:['awesome','awesome-list','resources'] },
+  { rank:3, name:'freeCodeCamp', owner:'freeCodeCamp', fullName:'freeCodeCamp/freeCodeCamp', desc:'freeCodeCamp.org 开源代码库和课程。免费学习数学、编程和计算机科学。', lang:'TypeScript', stars:443875, forks:44418, url:'https://github.com/freeCodeCamp/freeCodeCamp', topics:['education','javascript','react','curriculum','nonprofits'] },
+  { rank:4, name:'public-apis', owner:'public-apis', fullName:'public-apis/public-apis', desc:'免费 API 集合列表。', lang:'Python', stars:428879, forks:46806, url:'https://github.com/public-apis/public-apis', topics:['api','apis','development','free','public'] },
+  { rank:5, name:'free-programming-books', owner:'EbookFoundation', fullName:'EbookFoundation/free-programming-books', desc:'免费编程书籍。', lang:'Python', stars:387160, forks:66183, url:'https://github.com/EbookFoundation/free-programming-books', topics:['books','education','programming','free'] },
+  { rank:6, name:'openclaw', owner:'openclaw', fullName:'openclaw/openclaw', desc:'你自己的个人 AI 助手。任何操作系统，任何平台。', lang:'TypeScript', stars:366369, forks:75151, url:'https://github.com/openclaw/openclaw', topics:['ai','assistant','personal','own-your-data'] },
+  { rank:7, name:'developer-roadmap', owner:'nilbuild', fullName:'nilbuild/developer-roadmap', desc:'互动路线图、指南和教育内容，帮助开发者在职业生涯中成长。', lang:'TypeScript', stars:353891, forks:43983, url:'https://github.com/nilbuild/developer-roadmap', topics:['roadmap','frontend','backend','devops','career'] },
+  { rank:8, name:'system-design-primer', owner:'donnemartin', fullName:'donnemartin/system-design-primer', desc:'学习如何设计大型系统。为系统设计面试做准备。', lang:'Python', stars:346241, forks:55868, url:'https://github.com/donnemartin/system-design-primer', topics:['system-design','interview','design-patterns','architecture'] },
+  { rank:9, name:'coding-interview-university', owner:'jwasham', fullName:'jwasham/coding-interview-university', desc:'成为软件工程师的完整计算机科学学习计划。', lang:null, stars:343262, forks:82282, url:'https://github.com/jwasham/coding-interview-university', topics:['interview','computer-science','study-plan','algorithms'] },
+  { rank:10, name:'awesome-python', owner:'vinta', fullName:'vinta/awesome-python', desc:'精选的 Python 框架、库、工具和资源列表。', lang:'Python', stars:295077, forks:27793, url:'https://github.com/vinta/awesome-python', topics:['awesome','python','libraries','tools'] },
+  { rank:11, name:'awesome-selfhosted', owner:'awesome-selfhosted', fullName:'awesome-selfhosted/awesome-selfhosted', desc:'可以托管在自己服务器上的免费软件网络服务和 Web 应用列表。', lang:null, stars:288910, forks:13304, url:'https://github.com/awesome-selfhosted/awesome-selfhosted', topics:['self-hosted','privacy','free-software','hosting'] },
+  { rank:12, name:'996.ICU', owner:'996icu', fullName:'996icu/996.ICU', desc:'用于统计星标和贡献的仓库。按 F 致敬光荣的开发者。', lang:null, stars:276100, forks:20890, url:'https://github.com/996icu/996.ICU', topics:[] },
+  { rank:13, name:'project-based-learning', owner:'practical-tutorials', fullName:'practical-tutorials/project-based-learning', desc:'精选的实战教程列表。', lang:null, stars:264419, forks:34370, url:'https://github.com/practical-tutorials/project-based-learning', topics:['tutorial','project','programming','learning'] },
+  { rank:14, name:'react', owner:'facebook', fullName:'facebook/react', desc:'用于 Web 和原生用户界面的库。', lang:'JavaScript', stars:244763, forks:51002, url:'https://github.com/facebook/react', topics:['react','javascript','frontend','library','ui'] },
+  { rank:15, name:'linux', owner:'torvalds', fullName:'torvalds/linux', desc:'Linux 内核源码树。', lang:'C', stars:231310, forks:null, url:'https://github.com/torvalds/linux', topics:[] },
+  { rank:16, name:'vue', owner:'vuejs', fullName:'vuejs/vue', desc:'渐进式 JavaScript 框架。', lang:'JavaScript', stars:207500, forks:34500, url:'https://github.com/vuejs/vue', topics:['vue','javascript','frontend','framework'] },
+  { rank:17, name:'tensorflow', owner:'tensorflow', fullName:'tensorflow/tensorflow', desc:'端到端开源机器学习平台。', lang:'C++', stars:182000, forks:90500, url:'https://github.com/tensorflow/tensorflow', topics:['tensorflow','machine-learning','deep-learning','google'] },
+  { rank:18, name:'bootstrap', owner:'twbs', fullName:'twbs/bootstrap', desc:'最流行的 HTML、CSS 和 JS 框架。', lang:'JavaScript', stars:168000, forks:78000, url:'https://github.com/twbs/bootstrap', topics:['bootstrap','css','html','framework','responsive'] },
+  { rank:19, name:'awesome-go', owner:'avelino', fullName:'avelino/awesome-go', desc:'精选的 Go 框架、库和软件列表。', lang:'Go', stars:165000, forks:18500, url:'https://github.com/avelino/awesome-go', topics:['awesome','go','libraries','tools'] },
+  { rank:20, name:'awesome-machine-learning', owner:'josephmisiti', fullName:'josephmisiti/awesome-machine-learning', desc:'精选的机器学习框架、库和软件列表。', lang:'Python', stars:162000, forks:28500, url:'https://github.com/josephmisiti/awesome-machine-learning', topics:['awesome','machine-learning','deep-learning'] },
+  { rank:21, name:'javascript', owner:'airbnb', fullName:'airbnb/javascript', desc:'JavaScript 风格指南。', lang:'JavaScript', stars:138000, forks:23500, url:'https://github.com/airbnb/javascript', topics:['javascript','style-guide','linter'] },
+  { rank:22, name:'oh-my-zsh', owner:'ohmyzsh', fullName:'ohmyzsh/ohmyzsh', desc:'zsh 配置管理框架。', lang:'Shell', stars:186601, forks:26359, url:'https://github.com/ohmyzsh/ohmyzsh', topics:['zsh','shell','terminal','plugins'] },
+  { rank:23, name:'flutter', owner:'flutter', fullName:'flutter/flutter', desc:'Flutter 官方仓库。', lang:'Dart', stars:175000, forks:29500, url:'https://github.com/flutter/flutter', topics:['flutter','dart','mobile','ui'] },
+  { rank:24, name:'node', owner:'nodejs', fullName:'nodejs/node', desc:'Node.js JavaScript 运行时。', lang:'JavaScript', stars:98000, forks:27500, url:'https://github.com/nodejs/node', topics:['node','javascript','runtime'] },
+  { rank:25, name:'deno', owner:'denoland', fullName:'denoland/deno', desc:'现代 JavaScript 和 TypeScript 运行时。', lang:'TypeScript', stars:95000, forks:5200, url:'https://github.com/denoland/deno', topics:['deno','typescript','javascript','runtime'] },
+  { rank:26, name:'express', owner:'expressjs', fullName:'expressjs/express', desc:'快速、极简的 Node.js Web 框架。', lang:'JavaScript', stars:64000, forks:8500, url:'https://github.com/expressjs/express', topics:['express','node','web','framework'] },
+  { rank:27, name:'kubernetes', owner:'kubernetes', fullName:'kubernetes/kubernetes', desc:'生产级容器编排系统。', lang:'Go', stars:112000, forks:41500, url:'https://github.com/kubernetes/kubernetes', topics:['kubernetes','docker','containers','orchestration'] },
+  { rank:28, name:'docker', owner:'moby', fullName:'moby/moby', desc:'容器生态系统。', lang:'Go', stars:68000, forks:20500, url:'https://github.com/moby/moby', topics:['docker','containers','devops'] },
+  { rank:29, name:'ansible', owner:'ansible', fullName:'ansible/ansible', desc:'简单的 IT 自动化平台。', lang:'Python', stars:58000, forks:23500, url:'https://github.com/ansible/ansible', topics:['ansible','automation','devops','python'] },
+  { rank:30, name:'pytorch', owner:'pytorch', fullName:'pytorch/pytorch', desc:'Python 版 TensorDrop。', lang:'Python', stars:85000, forks:23500, url:'https://github.com/pytorch/pytorch', topics:['pytorch','deep-learning','machine-learning'] },
+  { rank:31, name:'keras', owner:'keras-team', fullName:'keras-team/keras', desc:'深度学习 API。', lang:'Python', stars:62000, forks:18500, url:'https://github.com/keras-team/keras', topics:['keras','deep-learning','neural-networks'] },
+  { rank:32, name:'scikit-learn', owner:'scikit-learn', fullName:'scikit-learn/scikit-learn', desc:'Python 的机器学习库。', lang:'Python', stars:58000, forks:24500, url:'https://github.com/scikit-learn/scikit-learn', topics:['scikit-learn','machine-learning','python'] },
+  { rank:33, name:'pandas', owner:'pandas-dev', fullName:'pandas-dev/pandas', desc:'灵活强大的 Python 数据分析库。', lang:'Python', stars:42000, forks:19500, url:'https://github.com/pandas-dev/pandas', topics:['pandas','python','data-analysis'] },
+  { rank:34, name:'numpy', owner:'numpy', fullName:'numpy/numpy', desc:'Python 的科学计算基础包。', lang:'Python', stars:26000, forks:9500, url:'https://github.com/numpy/numpy', topics:['numpy','python','scientific-computing'] },
+  { rank:35, name:'matplotlib', owner:'matplotlib', fullName:'matplotlib/matplotlib', desc:'Python 的绘图库。', lang:'Python', stars:18000, forks:6500, url:'https://github.com/matplotlib/matplotlib', topics:['matplotlib','python','plotting','visualization'] },
+  { rank:36, name:'django', owner:'django', fullName:'django/django', desc:'Python Web 框架。', lang:'Python', stars:78000, forks:34500, url:'https://github.com/django/django', topics:['django','python','web','framework'] },
+  { rank:37, name:'flask', owner:'pallets', fullName:'pallets/flask', desc:'Python 微框架。', lang:'Python', stars:65000, forks:19500, url:'https://github.com/pallets/flask', topics:['flask','python','web','framework'] },
+  { rank:38, name:'fastapi', owner:'tiangolo', fullName:'tiangolo/fastapi', desc:'现代快速的 Python Web 框架。', lang:'Python', stars:72000, forks:6500, url:'https://github.com/tiangolo/fastapi', topics:['fastapi','python','api','framework'] },
+  { rank:39, name:'beautifulsoup', owner:'psf', fullName:'psf/beautifulsoup', desc:'Python 网页抓取库。', lang:'Python', stars:22000, forks:3200, url:'https://github.com/psf/beautiful-soup', topics:['beautifulsoup','python','web-scraping'] },
+  { rank:40, name:'requests', owner:'psf', fullName:'psf/requests', desc:'Python HTTP 库。', lang:'Python', stars:49500, forks:8800, url:'https://github.com/psf/requests', topics:['requests','python','http'] },
+  { rank:41, name:'git', owner:'git', fullName:'git/git', desc:'Git 源码。', lang:'C', stars:56000, forks:19500, url:'https://github.com/git/git', topics:['git','version-control'] },
+  { rank:42, name:'vscode', owner:'microsoft', fullName:'microsoft/vscode', desc:'Visual Studio Code 源码。', lang:'TypeScript', stars:155000, forks:28500, url:'https://github.com/microsoft/vscode', topics:['vscode','editor','typescript'] },
+  { rank:43, name:'neovim', owner:'neovim', fullName:'neovim/neovim', desc:'Vim-fork 专注于可扩展性和可用性。', lang:'C', stars:72000, forks:4500, url:'https://github.com/neovim/neovim', topics:['neovim','vim','editor','text-editor'] },
+  { rank:44, name:'emacs', owner:'emacs-mirror', fullName:'emacs-mirror/emacs', desc:' Emacs 源码。', lang:'C', stars:18000, forks:4500, url:'https://github.com/emacs-mirror/emacs', topics:['emacs','editor','lisp'] },
+  { rank:45, name:' hammerspoon', owner:'hammerspoon', fullName:'hammerspoon/hammerspoon', desc:'macOS 的强大自动化。', lang:'Lua', stars:12000, forks:650, url:'https://github.com/Hammerspoon/hammerspoon', topics:['hammerspoon','macos','automation'] },
+  { rank:46, name:'alfred', owner:'alfred-workflows', fullName:'alfred-workflows/alfred', desc:'Alfred 工作流集合。', lang:null, stars:8500, forks:920, url:'https://github.com/alfred-workflows/alfred', topics:['alfred','workflows','productivity'] },
+  { rank:47, name:'fig', owner:'withfig', fullName:'withfig/fig', desc:'终端的自动补全。', lang:'TypeScript', stars:28000, forks:1200, url:'https://github.com/withfig/fig', topics:['fig','terminal','autocomplete'] },
+  { rank:48, name:'starship', owner:'starship', fullName:'starship/starship', desc:'任何 shell 的最小、快速、可定制的提示符。', lang:'Rust', stars:42000, forks:1800, url:'https://github.com/starship/starship', topics:['starship','shell','prompt','terminal'] },
+  { rank:49, name:'fzf', owner:'junegunn', fullName:'junegunn/fzf', desc:'命令行模糊查找器。', lang:'Go', stars:68000, forks:3200, url:'https://github.com/junegunn/fzf', topics:['fzf','fuzzy','search','terminal'] },
+  { rank:50, name:'tmux', owner:'tmux', fullName:'tmux/tmux', desc:'终端复用器。', lang:'C', stars:34000, forks:2200, url:'https://github.com/tmux/tmux', topics:['tmux','terminal','multiplexer'] },
+  { rank:51, name:'zsh', owner:'zsh-users', fullName:'zsh-users/zsh', desc:'Z shell 源码。', lang:'C', stars:12000, forks:1800, url:'https://github.com/zsh-users/zsh', topics:['zsh','shell','terminal'] },
+  { rank:52, name:'fish', owner:'fish-shell', fullName:'fish-shell/fish-shell', desc:'智能、友好的命令行 shell。', lang:'C++', stars:28000, forks:1800, url:'https://github.com/fish-shell/fish-shell', topics:['fish','shell','terminal'] },
+  { rank:53, name:'nvm', owner:'nvm-sh', fullName:'nvm-sh/nvm', desc:'Node 版本管理器。', lang:'Shell', stars:93148, forks:10136, url:'https://github.com/nvm-sh/nvm', topics:['nvm','node','version-manager'] },
+  { rank:54, name:'pyenv', owner:'pyenv', fullName:'pyenv/pyenv', desc:'Python 版本管理器。', lang:'Shell', stars:38000, forks:2800, url:'https://github.com/pyenv/pyenv', topics:['pyenv','python','version-manager'] },
+  { rank:55, name:'rbenv', owner:'rbenv', fullName:'rbenv/rbenv', desc:'Ruby 版本管理器。', lang:'Shell', stars:18000, forks:1200, url:'https://github.com/rbenv/rbenv', topics:['rbenv','ruby','version-manager'] },
+  { rank:56, name:'goenv', owner:'syndbg', fullName:'syndbg/goenv', desc:'Go 版本管理器。', lang:'Shell', stars:12000, forks:680, url:'https://github.com/syndbg/goenv', topics:['goenv','go','version-manager'] },
+  { rank:57, name:'rustup', owner:'rust-lang', fullName:'rust-lang/rustup', desc:'Rust 工具链安装器。', lang:'Rust', stars:12000, forks:850, url:'https://github.com/rust-lang/rustup', topics:['rustup','rust','toolchain'] },
+  { rank:58, name:'cargo', owner:'rust-lang', fullName:'rust-lang/cargo', desc:'Rust 包管理器。', lang:'Rust', stars:12000, forks:3200, url:'https://github.com/rust-lang/cargo', topics:['cargo','rust','package-manager'] },
+  { rank:59, name:'homebrew', owner:'homebrew', fullName:'homebrew/brew', desc:'macOS 的包管理器。', lang:'Ruby', stars:38000, forks:8500, url:'https://github.com/homebrew/brew', topics:['homebrew','macos','package-manager'] },
+  { rank:60, name:'apt', owner:'debian', fullName:'debian/apt', desc:'Debian 包管理器。', lang:'C++', stars:8500, forks:1200, url:'https://github.com/debian/apt', topics:['apt','debian','package-manager'] },
+  { rank:61, name:'yum', owner:'rpm-software-management', fullName:'rpm-software-management/yum', desc:'RPM 包管理器的前端。', lang:'Python', stars:3200, forks:850, url:'https://github.com/rpm-software-management/yum', topics:['yum','rpm','package-manager'] },
+  { rank:62, name:'brew', owner:'homebrew', fullName:'homebrew/brew', desc:'Linux/macOS 的包管理器。', lang:'Ruby', stars:38000, forks:8500, url:'https://github.com/homebrew/brew', topics:['brew','package-manager','macos','linux'] },
+  { rank:63, name:'conda', owner:'conda', fullName:'conda/conda', desc:'跨平台 Python 包管理器。', lang:'Python', stars:5800, forks:1800, url:'https://github.com/conda/conda', topics:['conda','python','package-manager'] },
+  { rank:64, name:'pip', owner:'pypa', fullName:'pypa/pip', desc:'Python 包安装器。', lang:'Python', stars:11500, forks:4200, url:'https://github.com/pypa/pip', topics:['pip','python','package-manager'] },
+  { rank:65, name:'npm', owner:'npm', fullName:'npm/cli', desc:'Node.js 包管理器。', lang:'JavaScript', stars:22000, forks:4200, url:'https://github.com/npm/cli', topics:['npm','node','package-manager'] },
+  { rank:66, name:'yarn', owner:'yarnpkg', fullName:'yarnpkg/yarn', desc:'快速、可靠、安全的依赖管理。', lang:'JavaScript', stars:42000, forks:5500, url:'https://github.com/yarnpkg/yarn', topics:['yarn','npm','package-manager'] },
+  { rank:67, name:'pnpm', owner:'pnpm', fullName:'pnpm/pnpm', desc:'快速、节省空间的包管理器。', lang:'JavaScript', stars:28000, forks:1500, url:'https://github.com/pnpm/pnpm', topics:['pnpm','npm','package-manager'] },
+  { rank:68, name:'bun', owner:'oven-sh', fullName:'oven-sh/bun', desc:'JavaScript 运行时和工具包。', lang:'Zig', stars:68000, forks:2200, url:'https://github.com/oven-sh/bun', topics:['bun','javascript','runtime'] },
+  { rank:69, name:'webpack', owner:'webpack', fullName:'webpack/webpack', desc:'JavaScript 打包器。', lang:'JavaScript', stars:65000, forks:9500, url:'https://github.com/webpack/webpack', topics:['webpack','bundler','javascript'] },
+  { rank:70, name:'vite', owner:'vitejs', fullName:'vitejs/vite', desc:'下一代前端工具。', lang:'TypeScript', stars:65000, forks:5500, url:'https://github.com/vitejs/vite', topics:['vite','bundler','frontend'] },
+  { rank:71, name:'esbuild', owner:'evanw', fullName:'evanw/esbuild', desc:'极快的 JavaScript 打包器和压缩器。', lang:'Go', stars:38000, forks:1200, url:'https://github.com/evanw/esbuild', topics:['esbuild','bundler','javascript'] },
+  { rank:72, name:'swc', owner:'swc-project', fullName:'swc-project/swc', desc:'Rust 编写的 TypeScript/JavaScript 编译器。', lang:'Rust', stars:28000, forks:1200, url:'https://github.com/swc-project/swc', topics:['swc','compiler','rust'] },
+  { rank:73, name:'rollup', owner:'rollup', fullName:'rollup/rollup', desc:'JavaScript 打包器。', lang:'JavaScript', stars:28000, forks:1800, url:'https://github.com/rollup/rollup', topics:['rollup','bundler','javascript'] },
+  { rank:74, name:'parcel', owner:'parcel-bundler', fullName:'parcel-bundler/parcel', desc:'零配置 Web 应用打包器。', lang:'JavaScript', stars:42000, forks:3200, url:'https://github.com/parcel-bundler/parcel', topics:['parcel','bundler','zero-config'] },
+  { rank:75, name:'babel', owner:'babel', fullName:'babel/babel', desc:'JavaScript 编译器。', lang:'JavaScript', stars:42000, forks:8500, url:'https://github.com/babel/babel', topics:['babel','javascript','compiler'] },
+  { rank:76, name:'typescript', owner:'microsoft', fullName:'microsoft/TypeScript', desc:'TypeScript 源码。', lang:'TypeScript', stars:98000, forks:13500, url:'https://github.com/microsoft/TypeScript', topics:['typescript','javascript','language'] },
+  { rank:77, name:'rust', owner:'rust-lang', fullName:'rust-lang/rust', desc:'Rust 源码。', lang:'Rust', stars:32000, forks:5500, url:'https://github.com/rust-lang/rust', topics:['rust','language','systems'] },
+  { rank:78, name:'go', owner:'golang', fullName:'golang/go', desc:'Go 源码。', lang:'Go', stars:125000, forks:18500, url:'https://github.com/golang/go', topics:['go','language','google'] },
+  { rank:79, name:'python', owner:'python', fullName:'python/cpython', desc:'Python 源码。', lang:'C', stars:185000, forks:55000, url:'https://github.com/python/cpython', topics:['python','language'] },
+  { rank:80, name:'julia', owner:'julia-lang', fullName:'julia-lang/julia', desc:'Julia 源码。', lang:'Julia', stars:14500, forks:2500, url:'https://github.com/JuliaLang/julia', topics:['julia','language','scientific'] },
+  { rank:81, name:'ruby', owner:'ruby', fullName:'ruby/ruby', desc:'Ruby 源码。', lang:'C', stars:22000, forks:6500, url:'https://github.com/ruby/ruby', topics:['ruby','language'] },
+  { rank:82, name:'php', owner:'php', fullName:'php/php-src', desc:'PHP 源码。', lang:'C', stars:32000, forks:8500, url:'https://github.com/php/php-src', topics:['php','language'] },
+  { rank:83, name:'swift', owner:'apple', fullName:'apple/swift', desc:'Swift 源码。', lang:'C++', stars:68000, forks:11500, url:'https://github.com/apple/swift', topics:['swift','apple','language'] },
+  { rank:84, name:'kotlin', owner:'JetBrains', fullName:'JetBrains/kotlin', desc:'Kotlin 源码。', lang:'Kotlin', stars:48000, forks:5500, url:'https://github.com/JetBrains/kotlin', topics:['kotlin','jetbrains','language'] },
+  { rank:85, name:'dart', owner:'dart-lang', fullName:'dart-lang/sdk', desc:'Dart SDK 源码。', lang:'Dart', stars:12500, forks:2500, url:'github.com/dart-lang/sdk', topics:['dart','language','flutter'] },
+  { rank:86, name:'scala', owner:'scala', fullName:'scala/scala', desc:'Scala 源码。', lang:'Scala', stars:12500, forks:2500, url:'https://github.com/scala/scala', topics:['scala','language','jvm'] },
+  { rank:87, name:'clojure', owner:'clojure', fullName:'clojure/clojure', desc:'Clojure 源码。', lang:'Java', stars:9500, forks:1500, url:'https://github.com/clojure/clojure', topics:['clojure','language','lisp'] },
+  { rank:88, name:'elixir', owner:'elixir-lang', fullName:'elixir-lang/elixir', desc:'Elixir 源码。', lang:'Elixir', stars:22000, forks:3200, url:'https://github.com/elixir-lang/elixir', topics:['elixir','language','erlang'] },
+  { rank:89, name:'haskell', owner:'haskell', fullName:'haskell/ghc', desc:'Glasgow Haskell 编译器。', lang:'Haskell', stars:8500, forks:1200, url:'https://github.com/haskell/ghc', topics:['haskell','compiler','language'] },
+  { rank:90, name:'lua', owner:'lua', fullName:'lua/lua', desc:'Lua 源码。', lang:'C', stars:8500, forks:1200, url:'https://github.com/lua/lua', topics:['lua','language','scripting'] },
+  { rank:91, name:'R', owner:'r-project', fullName:'r-project/r-source', desc:'R 源码。', lang:'C', stars:4500, forks:1500, url:'https://github.com/r-project/r-source', topics:['r','language','statistics'] },
+  { rank:92, name:'matlab', owner:'mathworks', fullName:'mathworks/matlab-extension-for-vscode', desc:'MATLAB VS Code 扩展。', lang:'TypeScript', stars:1200, forks:280, url:'https://github.com/mathworks/matlab-extension-for-vscode', topics:['matlab','vscode','extension'] },
+  { rank:93, name:'terraform', owner:'hashicorp', fullName:'hashicorp/terraform', desc:'基础设施即代码工具。', lang:'Go', stars:38000, forks:9500, url:'https://github.com/hashicorp/terraform', topics:['terraform','iac','devops'] },
+  { rank:94, name:'packer', owner:'hashicorp', fullName:'hashicorp/packer', desc:'从单一源创建机器镜像。', lang:'Go', stars:14500, forks:3200, url:'https://github.com/hashicorp/packer', topics:['packer','vm','images'] },
+  { rank:95, name:'vault', owner:'hashicorp', fullName:'hashicorp/vault', desc:'Secrets 和数据的安全访问。', lang:'Go', stars:28000, forks:4200, url:'https://github.com/hashicorp/vault', topics:['vault','secrets','security'] },
+  { rank:96, name:'nomad', owner:'hashicorp', fullName:'hashicorp/nomad', desc:'轻松部署任何规模的容器化应用。', lang:'Go', stars:14500, forks:2200, url:'https://github.com/hashicorp/nomad', topics:['nomad','scheduler','containers'] },
+  { rank:97, name:'consul', owner:'hashicorp', fullName:'hashicorp/consul', desc:'服务网络解决方案。', lang:'Go', stars:28000, forks:4200, url:'https://github.com/hashicorp/consul', topics:['consul','service-discovery','networking'] },
+  { rank:98, name:'vagrant', owner:'hashicorp', fullName:'hashicorp/vagrant', desc:'开发环境的创建和管理工具。', lang:'Ruby', stars:22500, forks:5500, url:'https://github.com/hashicorp/vagrant', topics:['vagrant','devops','virtualization'] },
+  { rank:99, name:'boundary', owner:'hashicorp', fullName:'hashicorp/boundary', desc:'安全访问任何远程系统。', lang:'Go', stars:5500, forks:420, url:'https://github.com/hashicorp/boundary', topics:['boundary','security','access'] },
+  { rank:100, name:'waypoint', owner:'hashicorp', fullName:'hashicorp/waypoint', desc:'任何平台的应用程序生命周期管理。', lang:'Go', stars:8500, forks:680, url:'https://github.com/hashicorp/waypoint', topics:['waypoint','deploy','devops'] },
+  { rank:101, name:'docker-compose', owner:'docker', fullName:'docker/compose', desc:'Docker Compose 工具。', lang:'Python', stars:32000, forks:5500, url:'https://github.com/docker/compose', topics:['docker-compose','docker','orchestration'] },
+  { rank:102, name:'helm', owner:'helm', fullName:'helm/helm', desc:'Kubernetes 包管理器。', lang:'Go', stars:28000, forks:8500, url:'https://github.com/helm/helm', topics:['helm','kubernetes','package-manager'] },
+  { rank:103, name:'kustomize', owner:'kubernetes-sigs', fullName:'kubernetes-sigs/kustomize', desc:'Kubernetes 原生配置管理。', lang:'Go', stars:14500, forks:1800, url:'https://github.com/kubernetes-sigs/kustomize', topics:['kustomize','kubernetes','k8s'] },
+  { rank:104, name:'argocd', owner:'argoproj', fullName:'argoproj/argo-cd', desc:'Kubernetes 的 GitOps 持续交付。', lang:'Go', stars:14500, forks:2800, url:'https://github.com/argoproj/argo-cd', topics:['argocd','gitops','kubernetes'] },
+  { rank:105, name:'tekton', owner:'tektoncd', fullName:'tektoncd/pipeline', desc:'Kubernetes 原生 CI/CD 框架。', lang:'Go', stars:12500, forks:1800, url:'https://github.com/tektoncd/pipeline', topics:['tekton','cicd','kubernetes'] },
+  { rank:106, name:'jenkins', owner:'jenkinsci', fullName:'jenkinsci/jenkins', desc:'领先的开源自动化服务器。', lang:'Java', stars:22500, forks:8500, url:'https://github.com/jenkinsci/jenkins', topics:['jenkins','ci','cd','automation'] },
+  { rank:107, name:'gitlab', owner:'gitlabhq', fullName:'gitlabhq/gitlab', desc:'GitLab 源码。', lang:'Ruby', stars:25000, forks:5500, url:'https://github.com/gitlabhq/gitlab', topics:['gitlab','ci','cd','git'] },
+  { rank:108, name:'drone', owner:'harness', fullName:'harness/drone', desc:'CI/CD 基于容器的平台。', lang:'Go', stars:28500, forks:3200, url:'https://github.com/harness/drone', topics:['drone','ci','cd','containers'] },
+  { rank:109, name:'gitea', owner:'go-gitea', fullName:'go-gitea/gitea', desc:'自托管 Git 服务。', lang:'Go', stars:42000, forks:4500, url:'https://github.com/go-gitea/gitea', topics:['gitea','git','self-hosted'] },
+  { rank:110, name:'gogs', owner:'gogs', fullName:'gogs/gogs', desc:'自托管 Git 服务。', lang:'Go', stars:42500, forks:5200, url:'https://github.com/gogs/gogs', topics:['gogs','git','self-hosted'] },
+  { rank:111, name:'forgejo', owner:'forgejo', fullName:'forgejo/forgejo', desc:'Gitea 的社区驱动分支。', lang:'Go', stars:4800, forks:380, url:'https://github.com/forgejo/forgejo', topics:['forgejo','git','self-hosted'] },
+  { rank:112, name:'argocd-ui', owner:'argoproj', fullName:'argoproj/argo-cd-ui', desc:'Argo CD Web UI。', lang:'TypeScript', stars:2200, forks:680, url:'https://github.com/argoproj/argo-cd-ui', topics:['argocd','ui','kubernetes'] },
+  { rank:113, name:'k9s', owner:'derailed', fullName:'derailed/k9s', desc:'Kubernetes CLI。', lang:'Go', stars:28000, forks:1800, url:'https://github.com/derailed/k9s', topics:['k9s','kubernetes','cli'] },
+  { rank:114, name:'kubectx', owner:'ahmetb', fullName:'ahmetb/kubectx', desc:'Kubernetes 上下文和命名空间切换。', lang:'Shell', stars:12500, forks:680, url:'https://github.com/ahmetb/kubectx', topics:['kubectl','kubernetes','context'] },
+  { rank:115, name:'kail', owner:'boz', fullName:'boz/kail', desc:'Kubernetes 日志查看器。', lang:'Go', stars:2800, forks:180, url:'https://github.com/boz/kail', topics:['kail','kubernetes','logs'] },
+  { rank:116, name:'kubespy', owner:'datawire', fullName:'datawire/kubespy', desc:'实时观察 Kubernetes 资源变化。', lang:'Go', stars:2200, forks:120, url:'https://github.com/datawire/kubespy', topics:['kubespy','kubernetes','debugging'] },
+  { rank:117, name:'kubectl', owner:'kubernetes', fullName:'kubernetes/kubectl', desc:'Kubernetes 命令行工具。', lang:'Go', stars:12500, forks:3800, url:'https://github.com/kubernetes/kubectl', topics:['kubectl','kubernetes','cli'] },
+  { rank:118, name:'helmfile', owner:'roboll', fullName:'roboll/helmfile', desc:'声明式 Helm 部署。', lang:'Go', stars:5800, forks:520, url:'https://github.com/roboll/helmfile', topics:['helmfile','helm','kubernetes'] },
+  { rank:119, name:'kpt', owner:'kubernetes-sigs', fullName:'kubernetes-sigs/kpt', desc:'Kubernetes 包工具。', lang:'Go', stars:4200, forks:380, url:'https://github.com/kubernetes-sigs/kpt', topics:['kpt','kubernetes','packaging'] },
+  { rank:120, name:'skaffold', owner:'GoogleContainerTools', fullName:'GoogleContainerTools/skaffold', desc:'Kubernetes 应用的持续开发。', lang:'Go', stars:14500, forks:1800, url:'https://github.com/GoogleContainerTools/skaffold', topics:['skaffold','kubernetes','development'] },
+  { rank:121, name:'tilt', owner:'tilt-dev', fullName:'tilt-dev/tilt', desc:'Kubernetes 的多服务开发。', lang:'Go', stars:8500, forks:420, url:'https://github.com/tilt-dev/tilt', topics:['tilt','kubernetes','development'] },
+  { rank:122, name:'okteto', owner:'okteto', fullName:'okteto/okteto', desc:'Kubernetes 开发者平台。', lang:'Go', stars:5800, forks:380, url:'https://github.com/okteto/okteto', topics:['okteto','kubernetes','cloud'] },
+  { rank:123, name:'kubesail', owner:'kubesail', fullName:'kubesail/kubesail-agent', desc:'Kubernetes 管理平台。', lang:'Go', stars:1200, forks:85, url:'https://github.com/kubesail/kubesail-agent', topics:['kubesail','kubernetes','platform'] },
+  { rank:124, name:'werf', owner:'flant', fullName:'flant/werf', desc:'GitOps 持续交付工具。', lang:'Go', stars:2800, forks:180, url:'https://github.com/flant/werf', topics:['werf','gitops','ci','cd'] },
+  { rank:125, name:'flux', owner:'fluxcd', fullName:'fluxcd/flux2', desc:'GitOps 工具包。', lang:'Go', stars:8500, forks:850, url:'https://github.com/fluxcd/flux2', topics:['flux','gitops','kubernetes'] },
+  { rank:126, name:'crossplane', owner:'crossplane', fullName:'crossplane/crossplane', desc:'云原生控制平面。', lang:'Go', stars:8500, forks:580, url:'https://github.com/crossplane/crossplane', topics:['crossplane','kubernetes','control-plane'] },
+  { rank:127, name:'istio', owner:'istio', fullName:'istio/istio', desc:'连接、保护、控制和观察服务。', lang:'Go', stars:32000, forks:5500, url:'https://github.com/istio/istio', topics:['istio','service-mesh','kubernetes'] },
+  { rank:128, name:'linkerd', owner:'linkerd', fullName:'linkerd/linkerd2', desc:'服务网格。', lang:'Go', stars:12500, forks:1200, url:'https://github.com/linkerd/linkerd2', topics:['linkerd','service-mesh','kubernetes'] },
+  { rank:129, name:'envoy', owner:'envoyproxy', fullName:'envoyproxy/envoy', desc:'C++ 高性能代理。', lang:'C++', stars:22500, forks:4200, url:'https://github.com/envoyproxy/envoy', topics:['envoy','proxy','service-mesh'] },
+  { rank:130, name:'nginx', owner:'nginx', fullName:'nginx/nginx', desc:'HTTP 服务器和反向代理。', lang:'C', stars:18500, forks:5800, url:'https://github.com/nginx/nginx', topics:['nginx','http','proxy','server'] },
+  { rank:131, name:'caddy', owner:'caddyserver', fullName:'caddyserver/caddy', desc:'快速、跨平台的 Web 服务器。', lang:'Go', stars:52000, forks:3200, url:'https://github.com/caddyserver/caddy', topics:['caddy','webserver','https'] },
+  { rank:132, name:'traefik', owner:'traefik', fullName:'traefik/traefik', desc:'云原生反向代理和负载均衡器。', lang:'Go', stars:48000, forks:4200, url:'https://github.com/traefik/traefik', topics:['traefik','proxy','kubernetes','docker'] },
+  { rank:133, name:'haproxy', owner:'haproxy', fullName:'haproxy/haproxy', desc:'可靠、高性能的 TCP/HTTP 负载均衡器。', lang:'C', stars:18500, forks:3200, url:'https://github.com/haproxy/haproxy', topics:['haproxy','load-balancer','proxy'] },
+  { rank:134, name:'kong', owner:'Kong', fullName:'Kong/kong', desc:'云原生 API 网关。', lang:'Lua', stars:38500, forks:5500, url:'https://github.com/Kong/kong', topics:['kong','api-gateway','nginx'] },
+  { rank:135, name:'apisix', owner:'apache', fullName:'apache/apisix', desc:'云原生 API 网关。', lang:'Lua', stars:12500, forks:2200, url:'https://github.com/apache/apisix', topics:['apisix','api-gateway','nginx'] },
+  { rank:136, name:'grafana', owner:'grafana', fullName:'grafana/grafana', desc:'可交互的可视化仪表板。', lang:'Go', stars:58500, forks:12500, url:'https://github.com/grafana/grafana', topics:['grafana','dashboard','monitoring'] },
+  { rank:137, name:'prometheus', owner:'prometheus', fullName:'prometheus/prometheus', desc:'云原生监控。', lang:'Go', stars:48500, forks:7800, url:'https://github.com/prometheus/prometheus', topics:['prometheus','monitoring','metrics'] },
+  { rank:138, name:'alertmanager', owner:'prometheus', fullName:'prometheus/alertmanager', desc:'告警管理。', lang:'Go', stars:5200, forks:1200, url:'https://github.com/prometheus/alertmanager', topics:['alertmanager','prometheus','alerting'] },
+  { rank:139, name:'loki', owner:'grafana', fullName:'grafana/loki', desc:'日志聚合系统。', lang:'Go', stars:22500, forks:2200, url:'https://github.com/grafana/loki', topics:['loki','logging','grafana'] },
+  { rank:140, name:'tempo', owner:'grafana', fullName:'grafana/tempo', desc:'分布式跟踪系统。', lang:'Go', stars:4500, forks:380, url:'https://github.com/grafana/tempo', topics:['tempo','tracing','distributed'] },
+  { rank:141, name:'mimir', owner:'grafana', fullName:'grafana/mimir', desc:'长期存储 Prometheus。', lang:'Go', stars:3200, forks:280, url:'https://github.com/grafana/mimir', topics:['mimir','prometheus','storage'] },
+  { rank:142, name:'datadog-agent', owner:'DataDog', fullName:'DataDog/datadog-agent', desc:'Datadog Agent 源码。', lang:'Go', stars:2800, forks:680, url:'https://github.com/DataDog/datadog-agent', topics:['datadog','agent','monitoring'] },
+  { rank:143, name:'sentry', owner:'getsentry', fullName:'getsentry/sentry', desc:'应用错误追踪。', lang:'Python', stars:32500, forks:4500, url:'https://github.com/getsentry/sentry', topics:['sentry','error-tracking','monitoring'] },
+  { rank:144, name:'jaeger', owner:'jaegertracing', fullName:'jaegertracing/jaeger', desc:'分布式追踪系统。', lang:'Go', stars:18500, forks:2800, url:'https://github.com/jaegertracing/jaeger', topics:['jaeger','tracing','distributed'] },
+  { rank:145, name:'zipkin', owner:'openzipkin', fullName:'openzipkin/zipkin', desc:'分布式追踪系统。', lang:'Java', stars:18500, forks:4200, url:'https://github.com/openzipkin/zipkin', topics:['zipkin','tracing','distributed'] },
+  { rank:146, name:'skywalking', owner:'apache', fullName:'apache/skywalking', desc:'应用性能监控系统。', lang:'Java', stars:22000, forks:5200, url:'https://github.com/apache/skywalking', topics:['skywalking','apm','monitoring'] },
+  { rank:147, name:'pinpoint', owner:'naver', fullName:'naver/pinpoint', desc:'大数据的事务追踪。', lang:'Java', stars:12500, forks:2800, url:'https://github.com/naver/pinpoint', topics:['pinpoint','apm','tracing'] },
+  { rank:148, name:'cat', owner:'dianping', fullName:'dianping/cat', desc:'美团点评的应用性能监控。', lang:'Java', stars:16500, forks:5500, url:'https://github.com/dianping/cat', topics:['cat','apm','monitoring'] },
+  { rank:149, name:'stagemonitor', owner:'stagemonitor', fullName:'stagemonitor/stagemonitor', desc:'Java 应用性能监控。', lang:'Java', stars:2200, forks:380, url:'https://github.com/stagemonitor/stagemonitor', topics:['stagemonitor','apm','java'] },
+  { rank:150, name:'apsara', owner:'alibaba', fullName:'alibaba/arthas', desc:'Java 诊断工具。', lang:'Java', stars:32000, forks:6800, url:'https://github.com/alibaba/arthas', topics:['arthas','java','diagnostics'] },
+  { rank:151, name:'newrelic', owner:'newrelic', fullName:'newrelic/newrelic-java-agent', desc:'New Relic Java Agent。', lang:'Java', stars:1200, forks:280, url:'https://github.com/newrelic/newrelic-java-agent', topics:['newrelic','java','agent'] },
+  { rank:152, name:'elastic', owner:'elastic', fullName:'elastic/elasticsearch', desc:'开源搜索和分析引擎。', lang:'Java', stars:68000, forks:24500, url:'https://github.com/elastic/elasticsearch', topics:['elasticsearch','search','elastic'] },
+  { rank:153, name:'logstash', owner:'elastic', fullName:'elastic/logstash', desc:'日志管道。', lang:'Java', stars:12500, forks:3200, url:'https://github.com/elastic/logstash', topics:['logstash','logging','elastic'] },
+  { rank:154, name:'kibana', owner:'elastic', fullName:'elastic/kibana', desc:'Elasticsearch 可视化。', lang:'TypeScript', stars:18500, forks:5800, url:'https://github.com/elastic/kibana', topics:['kibana','visualization','elastic'] },
+  { rank:155, name:'beats', owner:'elastic', fullName:'elastic/beats', desc:'轻量级数据发送器。', lang:'Go', stars:12500, forks:2800, url:'https://github.com/elastic/beats', topics:['beats','elastic','data-shipper'] },
+  { rank:156, name:'kafka', owner:'apache', fullName:'apache/kafka', desc:'分布式事件流平台。', lang:'Java', stars:28500, forks:12500, url:'https://github.com/apache/kafka', topics:['kafka','streaming','event'] },
+  { rank:157, name:'rocketmq', owner:'apache', fullName:'apache/rocketmq', desc:'分布式消息和事件流平台。', lang:'Java', stars:18500, forks:6800, url:'https://github.com/apache/rocketmq', topics:['rocketmq','messaging','alibaba'] },
+  { rank:158, name:'pulsar', owner:'apache', fullName:'apache/pulsar', desc:'分布式消息和事件流平台。', lang:'Java', stars:12500, forks:3200, url:'https://github.com/apache/pulsar', topics:['pulsar','messaging','streaming'] },
+  { rank:159, name:'rabbitmq', owner:'rabbitmq', fullName:'rabbitmq/rabbitmq-server', desc:'消息代理。', lang:'Erlang', stars:11500, forks:4200, url:'https://github.com/rabbitmq/rabbitmq-server', topics:['rabbitmq','messaging','erlang'] },
+  { rank:160, name:'nats', owner:'nats-io', fullName:'nats-io/nats-server', desc:'轻量级高性能消息系统。', lang:'Go', stars:14500, forks:1200, url:'https://github.com/nats-io/nats-server', topics:['nats','messaging','go'] },
+  { rank:161, name:'zeromq', owner:'zeromq', fullName:'zeromq/libzmq', desc:'消息传递库。', lang:'C++', stars:9800, forks:2800, url:'https://github.com/zeromq/libzmq', topics:['zeromq','messaging','library'] },
+  { rank:162, name:'activemq', owner:'apache', fullName:'apache/activemq', desc:'消息代理。', lang:'Java', stars:1850, forks:1200, url:'https://github.com/apache/activemq', topics:['activemq','messaging','java'] },
+  { rank:163, name:'qpid', owner:'apache', fullName:'apache/qpid', desc:'消息代理。', lang:'Java', stars:420, forks:180, url:'https://github.com/apache/qpid', topics:['qpid','messaging','amqp'] },
+  { rank:164, name:'redis', owner:'redis', fullName:'redis/redis', desc:'内存数据结构存储。', lang:'C', stars:74063, forks:24595, url:'https://github.com/redis/redis', topics:['redis','database','cache'] },
+  { rank:165, name:'memcached', owner:'memcached', fullName:'memcached/memcached', desc:'分布式内存缓存系统。', lang:'C', stars:19500, forks:4200, url:'https://github.com/memcached/memcached', topics:['memcached','cache','memory'] },
+  { rank:166, name:'etcd', owner:'etcd-io', fullName:'etcd-io/etcd', desc:'分布式可靠的键值存储。', lang:'Go', stars:44500, forks:8500, url:'https://github.com/etcd-io/etcd', topics:['etcd','distributed','key-value'] },
+  { rank:167, name:'consul', owner:'hashicorp', fullName:'hashicorp/consul', desc:'服务发现和配置。', lang:'Go', stars:28000, forks:4200, url:'https://github.com/hashicorp/consul', topics:['consul','service-discovery','kv'] },
+  { rank:168, name:'zookeeper', owner:'apache', fullName:'apache/zookeeper', desc:'分布式协调服务。', lang:'Java', stars:12500, forwards:5800, url:'https://github.com/apache/zookeeper', topics:['zookeeper','coordinator','distributed'] },
+  { rank:169, name:'d可靠性', owner:'alibaba', fullName:'alibaba/nacos', desc:'动态服务发现、配置管理和服务管理平台。', lang:'Java', stars:28500, forks:12000, url:'https://github.com/alibaba/nacos', topics:['nacos','service-discovery','config'] },
+  { rank:170, name:'apollo', owner:'ctripcorp', fullName:'ctripcorp/apollo', desc:'携程配置的分布式配置中心。', lang:'Java', stars:28000, forks:8500, url:'https://github.com/ctripcorp/apollo', topics:['apollo','config','distributed'] },
+  { rank:171, name:'diamond', owner:'alibaba', fullName:'alibaba/diamond', desc:'分布式配置中心。', lang:'Java', stars:4500, forks:1800, url:'https://github.com/alibaba/diamond', topics:['diamond','config','alibaba'] },
+  { rank:172, name:'redis哨兵', owner:'redis', fullName:'redis/redis', desc:'Redis 哨兵模式。', lang:'C', stars:5500, forks:2200, url:'https://github.com/redis/redis', topics:['redis','sentinel','ha'] },
+  { rank:173, name:'codis', owner:'codis', fullName:'codisLabs/codis', desc:'分布式 Redis 解决方案。', lang:'Go', stars:8500, forks:1800, url:'https://github.com/CodisLabs/codis', topics:['codis','redis','distributed'] },
+  { rank:174, name:'twemproxy', owner:'twitter', fullName:'twitter/twemproxy', desc:'Redis 和 Memcached 代理。', lang:'C', stars:9500, forks:1200, url:'https://github.com/twitter/twemproxy', topics:['twemproxy','redis','proxy'] },
+  { rank:175, name:'pika', owner:'Qihoo360', fullName:'Qihoo360/pika', desc:'大容量 Redis 替代品。', lang:'C++', stars:8500, forks:1200, url:'https://github.com/Qihoo360/pika', topics:['pika','redis','storage'] },
+  { rank:176, name:'rocksdb', owner:'facebook', fullName:'facebook/rocksdb', desc:'嵌入式可持久化键值存储。', lang:'C++', stars:28500, forks:5200, url:'https://github.com/facebook/rocksdb', topics:['rocksdb','storage','key-value'] },
+  { rank:177, name:'leveldb', owner:'google', fullName:'google/leveldb', desc:'键值存储库。', lang:'C++', stars:32500, forks:6500, url:'https://github.com/google/leveldb', topics:['leveldb','storage','key-value'] },
+  { rank:178, name:'badger', owner:'dgraph', fullName:'dgraph-io/badger', desc:'Go 的键值存储。', lang:'Go', stars:12500, forks:1200, url:'https://github.com/dgraph-io/badger', topics:['badger','go','key-value'] },
+  { rank:179, name:'boltdb', owner:'etcd-io', fullName:'etcd-io/bbolt', desc:'Go 的嵌入式键值数据库。', lang:'Go', stars:8500, forks:680, url:'https://github.com/etcd-io/bbolt', topics:['bbolt','go','database'] },
+  { rank:180, name:'sstable', owner:'facebook', fullName:'facebook/rocksdb', desc:'Sorted String Table 格式。', lang:'C++', stars:28500, forks:5200, url:'https://github.com/facebook/rocksdb', topics:['sstable','rocksdb','storage'] },
+  { rank:181, name:'cassandra', owner:'apache', fullName:'apache/cassandra', desc:'分布式 NoSQL 数据库。', lang:'Java', stars:8500, forks:3200, url:'https://github.com/apache/cassandra', topics:['cassandra','nosql','database'] },
+  { rank:182, name:'scylladb', owner:'scylladb', fullName:'scylladb/scylladb', desc:'快速 NoSQL 数据库。', lang:'C++', stars:8500, forks:680, url:'https://github.com/scylladb/scylladb', topics:['scylladb','nosql','database'] },
+  { rank:183, name:'cockroachdb', owner:'cockroachdb', fullName:'cockroachdb/cockroach', desc:'分布式 SQL 数据库。', lang:'Go', stars:28500, forks:2200, url:'https://github.com/cockroachdb/cockroach', topics:['cockroachdb','sql','distributed'] },
+  { rank:184, name:'tidb', owner:'pingcap', fullName:'pingcap/tidb', desc:'分布式 SQL 数据库。', lang:'Go', stars:35500, forks:5500, url:'https://github.com/pingcap/tidb', topics:['tidb','sql','distributed','mysql'] },
+  { rank:185, name:'oceanbase', owner:'oceanbase', fullName:'oceanbase/oceanbase', desc:'分布式关系数据库。', lang:'C++', stars:5800, forks:680, url:'https://github.com/oceanbase/oceanbase', topics:['oceanbase','sql','distributed'] },
+  { rank:186, name:'polardb', owner:'alibaba', fullName:'alibaba/PolarDB-for-PostgreSQL', desc:'阿里云 PolarDB。', lang:'C', stars:4200, forks:380, url:'https://github.com/alibaba/PolarDB-for-PostgreSQL', topics:['polardb','postgresql','alibaba'] },
+  { rank:187, name:'aurora', owner:'aws', fullName:'aws/aurora', desc:'AWS Aurora 数据库。', lang:null, stars:8500, forks:1200, url:'https://github.com/aws/aurora', topics:['aurora','aws','database'] },
+  { rank:188, name:'spanner', owner:'google', fullName:'google/spanner', desc:'Google Spanner 数据库。', lang:null, stars:5800, forks:680, url:'https://github.com/google/spanner', topics:['spanner','google','distributed-sql'] },
+  { rank:189, name:'nebula', owner:'vesoft', fullName:'vesoft-inc/nebula', desc:'分布式图数据库。', lang:'C++', stars:12500, forks:1800, url:'https://github.com/vesoft-inc/nebula', topics:['nebula','graph','database'] },
+  { rank:190, name:'dgraph', owner:'dgraph', fullName:'dgraph-io/dgraph', desc:'原生图数据库。', lang:'Go', stars:22500, forks:1800, url:'https://github.com/dgraph-io/dgraph', topics:['dgraph','graph','database'] },
+  { rank:191, name:'neo4j', owner:'neo4j', fullName:'neo4j/neo4j', desc:'图数据库。', lang:'Java', stars:12500, forks:2200, url:'https://github.com/neo4j/neo4j', topics:['neo4j','graph','database'] },
+  { rank:192, name:'janusgraph', owner:'janusgraph', fullName:'janusgraph/janusgraph', desc:'可扩展的图数据库。', lang:'Java', stars:3200, forks:680, url:'https://github.com/JanusGraph/janusgraph', topics:['janusgraph','graph','database'] },
+  { rank:193, name:'hugegraph', owner:'baidu', fullName:'baidu/HugeGraph', desc:'百度图数据库。', lang:'Java', stars:4200, forks:850, url:'https://github.com/baidu/HugeGraph', topics:['hugegraph','graph','database'] },
+  { rank:194, name:'orientdb', owner:'orientdb', fullName:'orientdb/orientdb', desc:'多模型 NoSQL 数据库。', lang:'Java', stars:12500, forks:2800, url:'https://github.com/orientdb/orientdb', topics:['orientdb','nosql','multi-model'] },
+  { rank:195, name:'arangodb', owner:'arangodb', fullName:'arangodb/arangodb', desc:'多模型 NoSQL 数据库。', lang:'C++', stars:12500, forks:1200, url:'https://github.com/arangodb/arangodb', topics:['arangodb','nosql','multi-model'] },
+  { rank:196, name:'crate', owner:'crate', fullName:'crate/crate', desc:'分布式 SQL 数据库。', lang:'Java', stars:4200, forks:520, url:'https://github.com/crate/crate', topics:['crate','sql','distributed'] },
+  { rank:197, name:'timescaledb', owner:'timescale', fullName:'timescale/timescaledb', desc:'PostgreSQL 的时序数据库扩展。', lang:'C', stars:18500, forks:1200, url:'https://github.com/timescale/timescaledb', topics:['timescaledb','timeseries','postgresql'] },
+  { rank:198, name:'questdb', owner:'questdb', fullName:'questdb/questdb', desc:'时序数据库。', lang:'Java', stars:6800, forks:420, url:'https://github.com/questdb/questdb', topics:['questdb','timeseries','database'] },
+  { rank:199, name:'influxdb', owner:'influxdata', fullName:'influxdata/influxdb', desc:'时序数据库。', lang:'Go', stars:28500, forks:4200, url:'https://github.com/influxdata/influxdb', topics:['influxdb','timeseries','database'] },
+  { rank:200, name:'tdengine', owner:'taosdata', fullName:'taosdata/TDengine', desc:'高性能时序数据库。', lang:'C', stars:22500, forks:3200, url:'https://github.com/taosdata/TDengine', topics:['tdengine','timeseries','database'] }
+];
+
+// ─── State ───
+let filterMode = 'lang';
+let selectedLang = null;
+let selectedDomain = null;
+let searchQuery = '';
+let currentTab = 'today';
+
+// 本周热门筛选状态
+let filterModeWeekly = 'lang';
+let selectedLangWeekly = null;
+let selectedDomainWeekly = null;
+
+// 总排行榜筛选状态
+let filterModeAlltime = 'lang';
+let selectedLangAlltime = null;
+let selectedDomainAlltime = null;
+
+function formatNum(n) {
+  if (!n && n !== 0) return '-';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+  return String(n);
+}
+
+function formatDate() {
+  return new Date().toLocaleDateString('zh-CN', { month:'long', day:'numeric' }) +
+    ' ' + new Date().toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) + ' 更新';
+}
+
+// ─── Tab Switch ───
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.includes(
+      tab === 'today' ? '今日' : tab === 'weekly' ? '本周' : '总排行'
+    ));
+  });
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  const heroTitle = document.getElementById('heroTitle');
+  const heroSub = document.getElementById('heroSub');
+  const statsRow = document.getElementById('statsRow');
+
+  if (tab === 'today') {
+    heroTitle.innerHTML = '今日 <em>GitHub</em> 热点';
+    heroSub.textContent = '实时追踪全球开发者最关注的开源项目 · 双维度分类筛选';
+    renderTodayStats();
+  } else if (tab === 'weekly') {
+    heroTitle.innerHTML = '本周 <em>GitHub</em> 热门';
+    heroSub.textContent = '本周增长最快的开源项目排行榜 · 按周新增 Star 排序';
+    renderWeeklyStats();
+  } else {
+    heroTitle.innerHTML = 'GitHub <em>总排行榜</em>';
+    heroSub.textContent = 'GitHub 全网 Star 最多的开源项目 · 历史累计排名';
+    renderAlltimeStats();
+  }
+}
+
+// ─── Filter ───
+function getFilteredTodayData() {
+  return TODAY_DATA.filter(p => {
+    const langMatch = !selectedLang || p.lang === selectedLang;
+    // 动态计算 domain（因为数据中没有预存 domain 属性）
+    const projectDomain = p.domain || assignDomain(p);
+    const domainMatch = !selectedDomain || projectDomain === selectedDomain;
+    const q = searchQuery.toLowerCase();
+    const searchMatch = !q || p.name.toLowerCase().includes(q) || p.owner.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
+    return langMatch && domainMatch && searchMatch;
+  });
+}
+
+function renderFilters() {
+  const row = document.getElementById('filterRow');
+  let html = `<button class="filter-btn ${!selectedLang && !selectedDomain ? 'active' : ''}" onclick="clearFilters()">全部</button>`;
+
+  if (filterMode === 'lang') {
+    [...new Set(TODAY_DATA.map(p => p.lang))].sort().forEach(lang => {
+      const color = getLangColor(lang);
+      const active = selectedLang === lang ? ' active' : '';
+      html += `<button class="filter-btn lang-filter${active}" onclick="setLangFilter('${lang}')">
+        <span class="lang-dot-sm" style="background:${color}"></span>${lang}
+      </button>`;
+    });
+  } else {
+    Object.keys(DOMAINS).forEach(domain => {
+      const active = selectedDomain === domain ? ' active' : '';
+      html += `<button class="filter-btn${active}" onclick="setDomainFilter('${domain}')">${domain}</button>`;
+    });
+  }
+
+  row.innerHTML = html;
+  renderActiveChips();
+}
+
+function renderActiveChips() {
+  const el = document.getElementById('activeFilters');
+  const chips = [];
+  if (selectedLang) {
+    chips.push(`<span class="filter-chip lang">
+      <span class="lang-dot-sm" style="background:${getLangColor(selectedLang)}"></span>${selectedLang}
+      <span class="filter-chip-remove" onclick="setLangFilter(null)">×</span>
+    </span>`);
+  }
+  if (selectedDomain) {
+    chips.push(`<span class="filter-chip">
+      ${selectedDomain}
+      <span class="filter-chip-remove" onclick="setDomainFilter(null)">×</span>
+    </span>`);
+  }
+  el.innerHTML = chips.length ? `<span class="active-filters-label">已选：</span>${chips.join('')}` : '';
+}
+
+function setFilterMode(mode) {
+  filterMode = mode;
+  document.querySelectorAll('.mode-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0 && mode === 'lang') || (i === 1 && mode === 'domain'));
+  });
+  renderFilters();
+  renderTodayTop();
+  renderTodayGrid();
+}
+
+function setLangFilter(lang) {
+  selectedLang = lang || null;
+  renderFilters();
+  renderTodayTop();
+  renderTodayGrid();
+}
+
+function setDomainFilter(domain) {
+  selectedDomain = domain || null;
+  renderFilters();
+  renderTodayTop();
+  renderTodayGrid();
+}
+
+function clearFilters() {
+  selectedLang = null;
+  selectedDomain = null;
+  renderFilters();
+  renderTodayTop();
+  renderTodayGrid();
+}
+
+// ─── Stats ───
+function renderTodayStats() {
+  const total = TODAY_DATA.length;
+  const todayTotal = TODAY_DATA.reduce((s, p) => s + p.starsToday, 0);
+  const langs = new Set(TODAY_DATA.map(p => p.lang).filter(Boolean));
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--accent)"></div>共 <span class="num">${total}</span> 个项目</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--gold)"></div>今日新增 <span class="num">${formatNum(todayTotal)}</span> Stars</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--blue)"></div>覆盖 <span class="num">${langs.size}</span> 种语言</div>
+  `;
+}
+
+function renderWeeklyStats() {
+  const total = WEEKLY_DATA.length;
+  const weekTotal = WEEKLY_DATA.reduce((s, p) => s + p.starsWeek, 0);
+  const langs = new Set(WEEKLY_DATA.map(p => p.lang).filter(Boolean));
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--purple)"></div>共 <span class="num">${total}</span> 个项目</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--gold)"></div>本周新增 <span class="num">${formatNum(weekTotal)}</span> Stars</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--blue)"></div>覆盖 <span class="num">${langs.size}</span> 种语言</div>
+  `;
+}
+
+function renderAlltimeStats() {
+  const total = ALLTIME_DATA.length;
+  const starsTotal = ALLTIME_DATA.reduce((s, p) => s + p.stars, 0);
+  const langs = new Set(ALLTIME_DATA.map(p => p.lang).filter(Boolean));
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--gold)"></div>共 <span class="num">${total}</span> 个项目</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--accent)"></div>累计 <span class="num">${formatNum(starsTotal)}</span> Stars</div>
+    <div class="stat-pill"><div class="stat-dot" style="background:var(--blue)"></div>覆盖 <span class="num">${langs.size}</span> 种语言</div>
+  `;
+}
+
+// ─── Today Render ───
+function renderTodayTop() {
+  const data = getFilteredTodayData();
+  const top = data[0];
+  const el = document.getElementById('todayTopCard');
+  document.getElementById('todayTopCount').textContent = `${data.length} 个项目`;
+
+  if (!top) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">没有找到匹配的项目</div></div>';
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="top-project" onclick="window.open('${top.url}', '_blank')">
+      <div class="top-rank">#${top.rank}</div>
+      <div class="top-badge">🔥 今日最热</div>
+      <div class="top-project-name"><a href="${top.url}" target="_blank" onclick="e=>e.stopPropagation()">${top.fullName}</a></div>
+      <div class="top-project-owner">by ${top.owner}</div>
+      <div class="top-project-desc">${top.desc || '暂无描述'}</div>
+      <div class="top-project-meta">
+        <div class="stat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${formatNum(top.stars)}</div>
+        <div class="today-badge">${formatNum(top.starsToday)} 今日</div>
+        <div class="lang-tag"><div class="lang-dot" style="background:${getLangColor(top.lang)}"></div>${top.lang}</div>
+        <span class="domain-tag">${top.domain}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderTodayGrid() {
+  const data = getFilteredTodayData().slice(1);
+  const el = document.getElementById('todayGrid');
+  document.getElementById('todayGridCount').textContent = `${data.length} 个项目`;
+
+  if (!data.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">没有找到匹配的项目</div></div>';
+    return;
+  }
+
+  el.innerHTML = data.map(p => buildCard(p, 'today')).join('');
+}
+
+// ─── Weekly Render ───
+function getFilteredWeeklyData() {
+  return WEEKLY_DATA.filter(p => {
+    const langMatch = !selectedLangWeekly || p.lang === selectedLangWeekly;
+    // 动态计算 domain（因为数据中没有预存 domain 属性）
+    const projectDomain = p.domain || assignDomain(p);
+    const domainMatch = !selectedDomainWeekly || projectDomain === selectedDomainWeekly;
+    const q = searchQuery.toLowerCase();
+    const searchMatch = !q || p.name.toLowerCase().includes(q) || p.owner.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
+    return langMatch && domainMatch && searchMatch;
+  });
+}
+
+function renderFiltersWeekly() {
+  const row = document.getElementById('filterRowWeekly');
+  let html = `<button class="filter-btn ${!selectedLangWeekly && !selectedDomainWeekly ? 'active' : ''}" onclick="clearFiltersWeekly()">全部</button>`;
+
+  if (filterModeWeekly === 'lang') {
+    [...new Set(WEEKLY_DATA.map(p => p.lang))].sort().forEach(lang => {
+      const color = getLangColor(lang);
+      const active = selectedLangWeekly === lang ? ' active' : '';
+      html += `<button class="filter-btn lang-filter${active}" onclick="setLangFilterWeekly('${lang}')">
+        <span class="lang-dot-sm" style="background:${color}"></span>${lang}
+      </button>`;
+    });
+  } else {
+    [...new Set(WEEKLY_DATA.map(p => p.domain))].sort().forEach(domain => {
+      const active = selectedDomainWeekly === domain ? ' active' : '';
+      html += `<button class="filter-btn${active}" onclick="setDomainFilterWeekly('${domain}')">${domain}</button>`;
+    });
+  }
+
+  row.innerHTML = html;
+  renderActiveChipsWeekly();
+}
+
+function renderActiveChipsWeekly() {
+  const el = document.getElementById('activeFiltersWeekly');
+  const chips = [];
+  if (selectedLangWeekly) {
+    chips.push(`<span class="filter-chip lang">
+      <span class="lang-dot-sm" style="background:${getLangColor(selectedLangWeekly)}"></span>${selectedLangWeekly}
+      <span class="filter-chip-remove" onclick="setLangFilterWeekly(null)">×</span>
+    </span>`);
+  }
+  if (selectedDomainWeekly) {
+    chips.push(`<span class="filter-chip">
+      ${selectedDomainWeekly}
+      <span class="filter-chip-remove" onclick="setDomainFilterWeekly(null)">×</span>
+    </span>`);
+  }
+  el.innerHTML = chips.length ? `<span class="active-filters-label">已选：</span>${chips.join('')}` : '';
+}
+
+function setFilterModeWeekly(mode) {
+  filterModeWeekly = mode;
+  document.querySelectorAll('#tab-weekly .mode-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0 && mode === 'lang') || (i === 1 && mode === 'domain'));
+  });
+  renderFiltersWeekly();
+  renderWeekly();
+}
+
+function setLangFilterWeekly(lang) {
+  selectedLangWeekly = lang || null;
+  renderFiltersWeekly();
+  renderWeekly();
+}
+
+function setDomainFilterWeekly(domain) {
+  selectedDomainWeekly = domain || null;
+  renderFiltersWeekly();
+  renderWeekly();
+}
+
+function clearFiltersWeekly() {
+  selectedLangWeekly = null;
+  selectedDomainWeekly = null;
+  renderFiltersWeekly();
+  renderWeekly();
+}
+
+function renderWeekly() {
+  const data = getFilteredWeeklyData();
+  const el = document.getElementById('weeklyGrid');
+  document.getElementById('weeklyCount').textContent = `${data.length} 个项目`;
+  if (!data.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">没有找到匹配的项目</div></div>';
+    return;
+  }
+  el.innerHTML = data.map(p => buildWeeklyCard(p)).join('');
+}
+
+// ─── All-time Render ───
+function getFilteredAlltimeData() {
+  return ALLTIME_DATA.filter(p => {
+    const langMatch = !selectedLangAlltime || p.lang === selectedLangAlltime;
+    // 动态计算 domain（因为数据中没有预存 domain 属性）
+    const projectDomain = p.domain || assignDomain(p);
+    const domainMatch = !selectedDomainAlltime || projectDomain === selectedDomainAlltime;
+    const q = searchQuery.toLowerCase();
+    const searchMatch = !q || p.name.toLowerCase().includes(q) || p.owner.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
+    return langMatch && domainMatch && searchMatch;
+  });
+}
+
+function renderFiltersAlltime() {
+  const row = document.getElementById('filterRowAlltime');
+  let html = `<button class="filter-btn ${!selectedLangAlltime && !selectedDomainAlltime ? 'active' : ''}" onclick="clearFiltersAlltime()">全部</button>`;
+
+  if (filterModeAlltime === 'lang') {
+    [...new Set(ALLTIME_DATA.map(p => p.lang))].sort().forEach(lang => {
+      const color = getLangColor(lang);
+      const active = selectedLangAlltime === lang ? ' active' : '';
+      html += `<button class="filter-btn lang-filter${active}" onclick="setLangFilterAlltime('${lang}')">
+        <span class="lang-dot-sm" style="background:${color}"></span>${lang}
+      </button>`;
+    });
+  } else {
+    [...new Set(ALLTIME_DATA.map(p => p.domain))].sort().forEach(domain => {
+      const active = selectedDomainAlltime === domain ? ' active' : '';
+      html += `<button class="filter-btn${active}" onclick="setDomainFilterAlltime('${domain}')">${domain}</button>`;
+    });
+  }
+
+  row.innerHTML = html;
+  renderActiveChipsAlltime();
+}
+
+function renderActiveChipsAlltime() {
+  const el = document.getElementById('activeFiltersAlltime');
+  const chips = [];
+  if (selectedLangAlltime) {
+    chips.push(`<span class="filter-chip lang">
+      <span class="lang-dot-sm" style="background:${getLangColor(selectedLangAlltime)}"></span>${selectedLangAlltime}
+      <span class="filter-chip-remove" onclick="setLangFilterAlltime(null)">×</span>
+    </span>`);
+  }
+  if (selectedDomainAlltime) {
+    chips.push(`<span class="filter-chip">
+      ${selectedDomainAlltime}
+      <span class="filter-chip-remove" onclick="setDomainFilterAlltime(null)">×</span>
+    </span>`);
+  }
+  el.innerHTML = chips.length ? `<span class="active-filters-label">已选：</span>${chips.join('')}` : '';
+}
+
+function setFilterModeAlltime(mode) {
+  filterModeAlltime = mode;
+  document.querySelectorAll('#tab-alltime .mode-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0 && mode === 'lang') || (i === 1 && mode === 'domain'));
+  });
+  renderFiltersAlltime();
+  renderAlltime();
+}
+
+function setLangFilterAlltime(lang) {
+  selectedLangAlltime = lang || null;
+  renderFiltersAlltime();
+  renderAlltime();
+}
+
+function setDomainFilterAlltime(domain) {
+  selectedDomainAlltime = domain || null;
+  renderFiltersAlltime();
+  renderAlltime();
+}
+
+function clearFiltersAlltime() {
+  selectedLangAlltime = null;
+  selectedDomainAlltime = null;
+  renderFiltersAlltime();
+  renderAlltime();
+}
+
+function renderAlltime() {
+  const data = getFilteredAlltimeData();
+  const el = document.getElementById('alltimeGrid');
+  document.getElementById('alltimeCount').textContent = `${data.length} 个项目`;
+  if (!data.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">没有找到匹配的项目</div></div>';
+    return;
+  }
+  el.innerHTML = data.map(p => buildAlltimeCard(p)).join('');
+}
+
+// ─── Card Builders ───
+function buildCard(p) {
+  const domain = p.domain || assignDomain(p);
+  return `
+    <a class="card" href="${p.url}" target="_blank" rel="noopener">
+      <div class="card-rank">#${p.rank}</div>
+      <div class="card-header">
+        <div class="card-avatar">
+          <img src="https://github.com/${p.owner}.png?size=72"
+               onerror="this.style.display='none';this.parentElement.textContent='${p.owner[0].toUpperCase()}'"
+               alt="${p.owner}" loading="lazy">
+        </div>
+        <div class="card-title-group">
+          <div class="card-name">${p.name}</div>
+          <div class="card-owner">${p.owner}</div>
+        </div>
+      </div>
+      <div class="card-desc">${p.desc || '暂无描述'}</div>
+      <div class="card-footer">
+        <div class="card-stats">
+          <div class="stat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${formatNum(p.stars)}</div>
+          ${p.forks ? `<div class="stat fork"><svg viewBox="0 0 24 24"><path d="M7 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-5 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm5-5c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V7m5 5v2"/></svg>${formatNum(p.forks)}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="lang-tag"><div class="lang-dot" style="background:${getLangColor(p.lang)}"></div>${p.lang || 'Unknown'}</div>
+          ${p.starsToday ? `<div class="today-badge">${formatNum(p.starsToday)}</div>` : ''}
+        </div>
+      </div>
+      <span class="domain-tag">${domain}</span>
+    </a>
+  `;
+}
+
+function buildWeeklyCard(p) {
+  const medalClass = p.rank <= 3 ? `rank-${p.rank}` : 'rank-default';
+  return `
+    <a class="card" href="${p.url}" target="_blank" rel="noopener">
+      <div class="rank-medal ${medalClass}">${p.rank}</div>
+      <div class="card-header">
+        <div class="card-avatar">
+          <img src="https://github.com/${p.owner}.png?size=72"
+               onerror="this.style.display='none';this.parentElement.textContent='${p.owner[0].toUpperCase()}'"
+               alt="${p.owner}" loading="lazy">
+        </div>
+        <div class="card-title-group">
+          <div class="card-name">${p.name}</div>
+          <div class="card-owner">${p.owner}</div>
+        </div>
+      </div>
+      <div class="card-desc">${p.desc || '暂无描述'}</div>
+      <div class="card-footer">
+        <div class="card-stats">
+          <div class="stat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${formatNum(p.stars)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="lang-tag"><div class="lang-dot" style="background:${getLangColor(p.lang)}"></div>${p.lang || 'Unknown'}</div>
+          <div class="week-badge">${formatNum(p.starsWeek)} 本周</div>
+        </div>
+      </div>
+      <span class="domain-tag">${p.domain}</span>
+    </a>
+  `;
+}
+
+function buildAlltimeCard(p) {
+  const medalClass = p.rank <= 3 ? `rank-${p.rank}` : 'rank-default';
+  return `
+    <a class="card" href="${p.url}" target="_blank" rel="noopener">
+      <div class="rank-medal ${medalClass}">${p.rank}</div>
+      <div class="card-header">
+        <div class="card-avatar">
+          <img src="https://github.com/${p.owner}.png?size=72"
+               onerror="this.style.display='none';this.parentElement.textContent='${p.owner[0].toUpperCase()}'"
+               alt="${p.owner}" loading="lazy">
+        </div>
+        <div class="card-title-group">
+          <div class="card-name">${p.name}</div>
+          <div class="card-owner">${p.owner}</div>
+        </div>
+      </div>
+      <div class="card-desc">${p.desc || '暂无描述'}</div>
+      <div class="card-footer">
+        <div class="card-stats">
+          <div class="stat star"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${formatNum(p.stars)}</div>
+          ${p.forks ? `<div class="stat fork"><svg viewBox="0 0 24 24"><path d="M7 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-5 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm5-5c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V7m5 5v2"/></svg>${formatNum(p.forks)}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="lang-tag"><div class="lang-dot" style="background:${getLangColor(p.lang)}"></div>${p.lang || 'Unknown'}</div>
+        </div>
+      </div>
+      <span class="domain-tag">${p.domain}</span>
+    </a>
+  `;
+}
+
+// ─── Search ───
+let searchMode = 'local'; // 'local' or 'github'
+let githubSearchTimeout = null;
+
+function setSearchMode(mode) {
+  searchMode = mode;
+  document.getElementById('modeLocal').classList.toggle('active', mode === 'local');
+  document.getElementById('modeGitHub').classList.toggle('active', mode === 'github');
+
+  // If switching to local mode, clear github overlay
+  if (mode === 'local') {
+    closeGitHubSearch();
+  }
+
+  // Trigger search with current query
+  const query = document.getElementById('search').value.trim();
+  if (query) {
+    handleSearch(query);
+  }
+}
+
+function handleSearch(query) {
+  if (searchMode === 'github') {
+    // GitHub搜索模式：显示模态框并调用API
+    openGitHubSearch(query);
+  } else {
+    // 本地搜索模式：使用现有搜索逻辑
+    searchQuery = query;
+    renderTodayTop();
+    renderTodayGrid();
+    renderWeekly();
+    renderAlltime();
+  }
+}
+
+function openGitHubSearch(query) {
+  const overlay = document.getElementById('githubSearchOverlay');
+  const body = document.getElementById('githubSearchBody');
+  const querySpan = document.getElementById('githubSearchQuery');
+
+  overlay.classList.add('active');
+  querySpan.textContent = `"${query}"`;
+
+  // 显示加载状态
+  body.innerHTML = `
+    <div class="github-search-loading">
+      <div class="github-search-spinner"></div>
+      <div>正在搜索 GitHub...</div>
+    </div>
+  `;
+
+  // 调用 GitHub Search API
+  searchGitHub(query);
+}
+
+function closeGitHubSearch(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('githubSearchOverlay').classList.remove('active');
+}
+
+async function searchGitHub(query) {
+  const body = document.getElementById('githubSearchBody');
+  const stats = document.getElementById('githubSearchStats');
+
+  try {
+    // GitHub Search API - 搜索仓库
+    // 使用 Token 增加 API 限制 (搜索: 30次/分钟, 核心: 5000次/小时)
+    const encodedQuery = encodeURIComponent(query);
+    const apiUrl = `https://api.github.com/search/repositories?q=${encodedQuery}&sort=stars&order=desc&per_page=20`;
+
+    // 调用 GitHub API
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': 'Bearer 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',
+        'User-Agent': 'GitHub-Trending-Viewer'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`API 返回错误: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.total_count === 0) {
+      body.innerHTML = `
+        <div class="github-search-empty">
+          <div style="font-size:32px;margin-bottom:12px">🔍</div>
+          <div>未找到相关项目</div>
+          <div style="margin-top:8px;font-size:12px">尝试使用不同的关键词</div>
+        </div>
+      `;
+      stats.textContent = '0 个结果';
+      return;
+    }
+
+    stats.textContent = `${data.total_count.toLocaleString()} 个结果，显示前 ${data.items.length} 个`;
+
+    body.innerHTML = data.items.map(repo => `
+      <a class="github-search-result" href="${repo.html_url}" target="_blank" rel="noopener">
+        <div class="github-result-avatar">
+          <img src="${repo.owner.avatar_url}&size=80" alt="${repo.owner.login}" loading="lazy">
+        </div>
+        <div class="github-result-content">
+          <div class="github-result-name">${repo.owner.login} / ${repo.name}</div>
+          <div class="github-result-desc">${repo.description || '暂无描述'}</div>
+          <div class="github-result-meta">
+            ${repo.language ? `
+              <div class="github-result-lang">
+                <div class="github-result-lang-dot" style="background:${getLangColor(repo.language)}"></div>
+                ${repo.language}
+              </div>
+            ` : ''}
+            <div>⭐ ${formatNum(repo.stargazers_count)}</div>
+            <div>🍴 ${formatNum(repo.forks_count)}</div>
+          </div>
+        </div>
+      </a>
+    `).join('');
+
+  } catch (error) {
+    console.error('GitHub搜索失败:', error);
+    body.innerHTML = `
+      <div class="github-search-empty">
+        <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+        <div>搜索失败</div>
+        <div style="margin-top:8px;font-size:12px">${error.message}</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-dim)">
+          可能原因：API请求次数限制、网络问题或CORS限制
+        </div>
+      </div>
+    `;
+    stats.textContent = '';
+  }
+}
+
+document.getElementById('search').addEventListener('input', function () {
+  const query = this.value.trim();
+
+  // 清除之前的延迟搜索
+  if (githubSearchTimeout) {
+    clearTimeout(githubSearchTimeout);
+  }
+
+  if (!query) {
+    // 空搜索词：关闭GitHub搜索模态框，恢复本地搜索
+    if (searchMode === 'github') {
+      closeGitHubSearch();
+    }
+    searchQuery = '';
+    renderTodayTop();
+    renderTodayGrid();
+    renderWeekly();
+    renderAlltime();
+    return;
+  }
+
+  if (searchMode === 'github') {
+    // GitHub搜索模式：延迟搜索以减少API调用
+    githubSearchTimeout = setTimeout(() => {
+      handleSearch(query);
+    }, 500);
+  } else {
+    // 本地搜索模式：立即搜索
+    handleSearch(query);
+  }
+});
+
+// 回车键直接触发GitHub搜索
+document.getElementById('search').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && searchMode === 'github') {
+    e.preventDefault();
+    if (githubSearchTimeout) {
+      clearTimeout(githubSearchTimeout);
+    }
+    handleSearch(this.value.trim());
+  }
+});
+
+// ─── Init ───
+document.getElementById('updateTime').textContent = formatDate();
+renderFilters();
+renderFiltersWeekly();
+renderFiltersAlltime();
+renderTodayStats();
+renderTodayTop();
+renderTodayGrid();
+renderWeekly();
+renderAlltime();
+</script>
+</body>
+</html>
